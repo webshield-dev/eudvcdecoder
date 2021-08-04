@@ -7,15 +7,15 @@ The CLI flags are
 2. -verbose <level> where level is 0 -> 9, default is zero
 
 Example running with no verbose
-
-    `go run . -qr_file ./ireland_1_qr.png` 
+- `go run . -qrfile ./testfiles/at_1.png`
+- `go run . -qrfile ./testfiles/ie_1_qr.png`
 
 Example running with verbose
 
-    `go run . -qr_file ./ireland_1_qr.png -verbose 1`
+    `go run . -qrfile ./testfiles/ie_1_qr.png -verbose 1`
 
 
-The decoding steps are as follows
+The **decoding steps** are as follows:
 1. Read the QR code (.png) containing the Digital Certificate to get a base45 encoded certificate
 2. Decode the base45 certificate to get a compressed certificate
 3. ZLIB inflate the compressed certificate to get a CBOR Web Token
@@ -26,6 +26,8 @@ The decoding steps are as follows
 
 Limitations
 - Only decodes vaccine credentials not test or other
+
+Test files are from `https://github.com/eu-digital-green-certificates/dgc-testdata`
 
 Example output
 
