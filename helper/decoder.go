@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"compress/zlib"
 	"fmt"
+	"github.com/webshield-dev/eudvcdecoder/datamodel"
 	"image/png"
 	"io"
 	"os"
@@ -54,6 +55,8 @@ type Output struct {
 	ProtectedHeader   *COSEHeader
 	UnProtectedHeader *COSEHeader
 	COSESignature     []byte
+	CommonPayload     *datamodel.DGCCommonPayload
+	DiagnoseLines     []string //if trying to learn display here
 }
 
 //COSEHeader only contains what is specified in the vaccine credential
@@ -80,7 +83,9 @@ type decoderImpl struct {
 
 func (di *decoderImpl) FromFileQRCodePNG(filename string) (*Output, error) {
 
-	output := &Output{}
+	output := &Output{
+		DiagnoseLines: make([]string, 0),
+	}
 
 	//
 	//1. Read QR code image
@@ -215,11 +220,153 @@ func (di *decoderImpl) cborUnMarshall(inflated []byte, outputToPopulate *Output)
 	outputToPopulate.PayloadI = payloadI
 
 	//
+	// CBOR unmarshall the Payload into the common payload CBOR mapping as defined on section 2.6.3 in
+	// https://ec.europa.eu/health/sites/default/files/ehealth/docs/digital-green-certificates_v3_en.pdf
+	//
+	type commonPayloadCBORMapping struct {
+		ISS   string             `cbor:"1,keyasint,omitempty"`
+		EXP   uint64             `cbor:"4,keyasint,omitempty"`
+		IAT   uint64             `cbor:"6,keyasint,omitempty"`
+		HCERT datamodel.HCERTMap `cbor:"-260,keyasint,omitempty"`
+	}
+
+	var p commonPayloadCBORMapping
+	if err := cbor.Unmarshal(sCWT.Payload, &p); err != nil {
+		//debug process to understand more
+		outputToPopulate.DiagnoseLines = di.debugCommonPayload(sCWT.Payload)
+
+		return fmt.Errorf("error cbor unmarshalling common payload run with verbose to see more err=%s", err)
+	}
+
+	//create the datamodel version of common payload, just did not want to expose CBOR mapping outside of here
+	outputToPopulate.CommonPayload = &datamodel.DGCCommonPayload{
+		ISS:   p.ISS,
+		IAT:   p.IAT,
+		EXP:   p.EXP,
+		HCERT: p.HCERT}
+
+	//
 	// Add Signature not used for now
 	//
 	outputToPopulate.COSESignature = sCWT.Signature
 
 	return nil
+
+}
+
+func (di *decoderImpl) debugCommonPayload(payload []byte) []string {
+
+	rl := make([]string, 0)
+
+	rl = append(rl, fmt.Sprintf("ERROR cbor unmarshalling CommonPayload HCERT diagnosing"))
+
+	//if an error using the known types then use an interface for HCERT so can process in debug
+	type resilientCommonPayloadCBORMapping struct {
+		ISS   string      `cbor:"1,keyasint,omitempty"`
+		EXP   uint64      `cbor:"4,keyasint,omitempty"`
+		IAT   uint64      `cbor:"6,keyasint,omitempty"`
+		HCERT interface{} `cbor:"-260,keyasint,omitempty"`
+	}
+
+	var cp resilientCommonPayloadCBORMapping
+	if err := cbor.Unmarshal(payload, &cp); err != nil {
+		return append(rl, fmt.Sprintf("error debugging cbor payload unmarshall error err=%s", err))
+	}
+
+	switch cp.HCERT.(type) {
+
+	case map[interface{}]interface{}:
+		{
+			hcertM := cp.HCERT.(map[interface{}]interface{})
+			for k, v := range hcertM {
+				switch k.(type) {
+				case uint64:
+					{
+						ki := k.(uint64)
+						if ki == 1 {
+							//can process
+							arls := analyseMap(v, "  ")
+							for _, arl := range arls {
+								rl = append(rl, arl)
+							}
+
+						} else {
+							rl = append(rl, fmt.Sprintf("ERROR HCERT.map[key] expected=1 got=%d", ki))
+						}
+
+					}
+
+				default:
+					{
+
+					}
+					rl = append(rl, fmt.Sprintf("ERROR HCERT.map[key] expected=uint64 got=%T", k))
+				}
+			}
+		}
+
+	default:
+		{
+			rl = append(rl, fmt.Sprintf("HCERT expected map[interface{}]interface{} got=%T", cp.HCERT))
+		}
+
+	}
+
+	return rl
+
+}
+
+//analyseMap kept finding that different issues use different types so created this routine to scan
+//whole structure and print out key, key.(type), value and value.(type) to help diagnose. Not can always
+//see content if use -verbose 1 as does not try to JSON unmarshall
+func analyseMap(mapI interface{}, indent string) []string {
+
+	rl := make([]string, 0)
+
+	switch mapI.(type) {
+
+	case map[interface{}]interface{}:
+		{
+			//can process
+			rl = append(rl, fmt.Sprintf("%sADD HCERT processing", indent))
+			m1 := mapI.(map[interface{}]interface{})
+			for k1, v1 := range m1 {
+				rl = append(rl, fmt.Sprintf("%skey=%v %T v=%v %T", indent, k1, k1, v1, v1))
+
+				switch v1.(type) {
+				case map[interface{}]interface{}, map[string]interface{}:
+					{
+						newrls := analyseMap(v1, indent+"  ")
+						for _, newrll := range newrls {
+							rl = append(rl, newrll)
+						}
+					}
+				case []interface{}:
+					{
+						a := v1.([]interface{})
+						for _, entry := range a {
+							newrls := analyseMap(entry, indent+"  ")
+							for _, newrll := range newrls {
+								rl = append(rl, newrll)
+							}
+						}
+
+					}
+				default: {
+					//no more work
+				}
+				}
+			}
+
+		}
+
+	default:
+		rl = append(rl, fmt.Sprintf(
+			"ERROR expected HCert.map[1]=map[interface{}]interface{} got=%T", mapI))
+
+	}
+
+	return rl
 
 }
 

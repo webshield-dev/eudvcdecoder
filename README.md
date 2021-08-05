@@ -43,13 +43,18 @@ Example output
 2. Github Repo
     - https://github.com/eu-digital-green-certificates
 
-3. Technical Specification Volumes
+3. EU Technical Specification Volumes
     - Volume 1 - Technical Specifications for Digital Green Certificates
         - https://ec.europa.eu/health/sites/default/files/ehealth/docs/digital-green-certificates_v1_en.pdf
     - Volume 2 - Technical Specifications for Digital Green Certificates
         - https://ec.europa.eu/health/sites/default/files/ehealth/docs/digital-green-certificates_v2_en.pdf
     - Volume 3 - Technical Specifications for Digital Green Certificates (Interoperable 2D Code, CBOR)
         - https://ec.europa.eu/health/sites/default/files/ehealth/docs/digital-green-certificates_v3_en.pdf
+
+4. EU Support 
+    - Certificate JSON Schema
+        - https://github.com/ehn-dcc-development/ehn-dcc-schema
+        - https://ec.europa.eu/health/sites/default/files/ehealth/docs/covid-certificate_json_specification_en.pdf
 
 
 # CBOR Web Token Specifications

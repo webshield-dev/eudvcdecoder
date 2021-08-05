@@ -71,60 +71,102 @@ func displayResults(output *helper.Output, verbose bool) error {
 		return nil
 	}
 
+	fmt.Printf("Decoding EU Covid Certificate\n")
+
+
 	if len(output.DecodedQRCode) != 0 {
-		fmt.Printf("Read QR Code PNG %s Successfully...\n", cliQRFilename)
+		fmt.Printf("  Read QR Code PNG %s Successfully...\n", cliQRFilename)
 		if verbose {
 			fmt.Printf("    value=%s\n", string(output.DecodedQRCode))
 		}
 	}
 
 	if len(output.Base45Decoded) != 0 {
-		fmt.Printf("Base45 Decoded Successfully...\n")
+		fmt.Printf("  Base45 Decoded Successfully...\n")
 		if verbose {
 			fmt.Printf("    hex(value)=%s\n", hex.EncodeToString(output.Base45Decoded))
 		}
 	}
 
 	if len(output.Inflated) != 0 {
-		fmt.Printf("ZLIB Inflated Successfully...\n")
+		fmt.Printf("  ZLIB Inflated Successfully...\n")
 		if verbose {
 			fmt.Printf("    hex(value)=%s\n", hex.EncodeToString(output.Inflated))
 		}
 	}
 
 	if output.CBORUnmarshalledI != nil {
-		fmt.Printf("CBOR UnMarshalled CBOR Web Token (CWT) Successfully...\n")
+		fmt.Printf("  CBOR UnMarshalled CBOR Web Token (CWT) Successfully...\n")
 		if verbose {
 			fmt.Printf("    value=%+v\n", output.CBORUnmarshalledI)
 		}
 	}
 
 	if output.ProtectedHeader != nil {
-		fmt.Printf("  CWT CBOR UnMarshalled ProtectedHeader Successfully...\n")
+		fmt.Printf("    CWT CBOR UnMarshalled ProtectedHeader Successfully...\n")
 		if verbose {
-			fmt.Printf("    value=%+v\n", *output.ProtectedHeader)
+			fmt.Printf("      value=%+v\n", *output.ProtectedHeader)
 		}
 	}
 
 	if output.UnProtectedHeader != nil {
-		fmt.Printf("  CWT Read UnProtectedHeader Successfully...\n")
+		fmt.Printf("    CWT Read UnProtectedHeader Successfully...\n")
 		if verbose {
-			fmt.Printf("    value=%+v\n", *output.UnProtectedHeader)
+			fmt.Printf("      value=%+v\n", *output.UnProtectedHeader)
 		}
 	}
 
 	if output.PayloadI != nil {
-		fmt.Printf("  CWT CBOR UnMarshalled Payload Successfully...\n")
+		fmt.Printf("    CWT CBOR UnMarshalled Payload Successfully...\n")
 		if verbose {
-			fmt.Printf("    value=%+v\n", output.PayloadI)
+			fmt.Printf("      value=%+v\n", output.PayloadI)
 		}
 	}
 
 	if len(output.COSESignature) != 0 {
-		fmt.Printf("  CWT Read COSE Signature (single signer) Successfully...\n")
+		fmt.Printf("    CWT Read COSE Signature (single signer) Successfully...\n")
 		if verbose {
-			fmt.Printf("    hex(value)=%s\n", hex.EncodeToString(output.COSESignature))
+			fmt.Printf("      hex(value)=%s\n", hex.EncodeToString(output.COSESignature))
 		}
+	}
+
+	if len(output.DiagnoseLines) != 0 {
+		for _, line := range output.DiagnoseLines {
+			fmt.Printf("%s\n", line)
+		}
+	}
+
+	if output.CommonPayload != nil {
+
+		//
+		//Lets display all the important parts
+		//
+		fmt.Printf("Decoded EU Covid Certificate\n")
+
+
+		//
+		//Protected header
+		//
+		prettyResult, err := prettyIdent(output.ProtectedHeader)
+		if err != nil {
+			return err
+		}
+		fmt.Printf("protectedHeader=%s\n", prettyResult)
+
+		//
+		// Common payload
+		//
+
+		prettyResult, err = prettyIdent(output.CommonPayload)
+		if err != nil {
+			return err
+		}
+		fmt.Printf("commonPayload=%s\n", prettyResult)
+
+		//
+		// Signature in hex
+		//
+		fmt.Printf("hex(signature)=%s\n", hex.EncodeToString(output.COSESignature))
 	}
 
 
