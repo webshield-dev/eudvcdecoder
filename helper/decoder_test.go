@@ -42,6 +42,10 @@ func Test_Decode(t *testing.T) {
             name:       "should support NL vaccine code 1",
             qrCodePath: "../testfiles/vaccine/072-NL-vaccination.png",
         },
+        {
+            name:       "should support German vaccine code 1",
+            qrCodePath: "../testfiles/vaccine/dr_1.png",
+        },
     }
 
     vcDecoder := helper.NewDecoder(true, true)
