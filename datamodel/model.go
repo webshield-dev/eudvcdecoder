@@ -118,7 +118,7 @@ type Vaccine struct {
 
 //HCERTMap looking a unmarshalled CBOR this is a map with one key "1" that is the DCC
 //see https://ec.europa.eu/health/sites/default/files/ehealth/docs/digital-green-certificates_v3_en.pdf
-type HCERTMap map[uint64]DCC
+type HCERTMap map[uint64]*DCC
 
 //HCERTMapKeyOne not sure if there are planned extensions with other keys so did not want to collapse out
 //of the model for now

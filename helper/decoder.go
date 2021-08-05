@@ -47,16 +47,17 @@ type Decoder interface {
 
 //Output the results of decoding
 type Output struct {
-	DecodedQRCode     []byte
-	Base45Decoded     []byte
-	Inflated          []byte
-	CBORUnmarshalledI interface{}
-	PayloadI          interface{}
-	ProtectedHeader   *COSEHeader
-	UnProtectedHeader *COSEHeader
-	COSESignature     []byte
-	CommonPayload     *datamodel.DGCCommonPayload
-	DiagnoseLines     []string //if trying to learn display here
+	DecodedQRCode           []byte
+	Base45Decoded           []byte
+	Inflated                []byte
+	CBORUnmarshalledI       interface{}
+	CBORUnmarshalledPayload []byte //cbor encoded payload
+	PayloadI                interface{}
+	ProtectedHeader         *COSEHeader
+	UnProtectedHeader       *COSEHeader
+	COSESignature           []byte
+	CommonPayload           *datamodel.DGCCommonPayload
+	DiagnoseLines           []string //if trying to learn display here
 }
 
 //COSEHeader only contains what is specified in the vaccine credential
@@ -213,6 +214,7 @@ func (di *decoderImpl) cborUnMarshall(inflated []byte, outputToPopulate *Output)
 	//
 	//CBOR decode the payload into a generic interface that needs to be processed
 	//
+	outputToPopulate.CBORUnmarshalledPayload = sCWT.Payload
 	var payloadI interface{}
 	if err := cbor.Unmarshal(sCWT.Payload, &payloadI); err != nil {
 		return err
@@ -233,7 +235,7 @@ func (di *decoderImpl) cborUnMarshall(inflated []byte, outputToPopulate *Output)
 	var p commonPayloadCBORMapping
 	if err := cbor.Unmarshal(sCWT.Payload, &p); err != nil {
 		//debug process to understand more
-		outputToPopulate.DiagnoseLines = di.debugCommonPayload(sCWT.Payload)
+		outputToPopulate.DiagnoseLines = DebugCBORCommonPayload(sCWT.Payload)
 
 		return fmt.Errorf("error cbor unmarshalling common payload run with verbose to see more err=%s", err)
 	}
@@ -285,7 +287,7 @@ func (di *decoderImpl) debugCommonPayload(payload []byte) []string {
 						ki := k.(uint64)
 						if ki == 1 {
 							//can process
-							arls := analyseMap(v, "  ")
+							arls := AnalyseMap(v, "  ")
 							for _, arl := range arls {
 								rl = append(rl, arl)
 							}
@@ -309,60 +311,6 @@ func (di *decoderImpl) debugCommonPayload(payload []byte) []string {
 		{
 			rl = append(rl, fmt.Sprintf("HCERT expected map[interface{}]interface{} got=%T", cp.HCERT))
 		}
-
-	}
-
-	return rl
-
-}
-
-//analyseMap kept finding that different issues use different types so created this routine to scan
-//whole structure and print out key, key.(type), value and value.(type) to help diagnose. Not can always
-//see content if use -verbose 1 as does not try to JSON unmarshall
-func analyseMap(mapI interface{}, indent string) []string {
-
-	rl := make([]string, 0)
-
-	switch mapI.(type) {
-
-	case map[interface{}]interface{}:
-		{
-			//can process
-			rl = append(rl, fmt.Sprintf("%sADD HCERT processing", indent))
-			m1 := mapI.(map[interface{}]interface{})
-			for k1, v1 := range m1 {
-				rl = append(rl, fmt.Sprintf("%skey=%v %T v=%v %T", indent, k1, k1, v1, v1))
-
-				switch v1.(type) {
-				case map[interface{}]interface{}, map[string]interface{}:
-					{
-						newrls := analyseMap(v1, indent+"  ")
-						for _, newrll := range newrls {
-							rl = append(rl, newrll)
-						}
-					}
-				case []interface{}:
-					{
-						a := v1.([]interface{})
-						for _, entry := range a {
-							newrls := analyseMap(entry, indent+"  ")
-							for _, newrll := range newrls {
-								rl = append(rl, newrll)
-							}
-						}
-
-					}
-				default: {
-					//no more work
-				}
-				}
-			}
-
-		}
-
-	default:
-		rl = append(rl, fmt.Sprintf(
-			"ERROR expected HCert.map[1]=map[interface{}]interface{} got=%T", mapI))
 
 	}
 
