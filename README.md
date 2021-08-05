@@ -2,7 +2,6 @@
 This CLI tool (golang) decodes an EU Digital COVID-19 Certificate (also referred to as Digital Green Certificates), it does NOT
 yet verify the Signature. Example Certificate Information
 
-Example output:
 ```
 go run . -qrfile ./testfiles/vaccine/dr_1.png
 ... removed for clarity ...
@@ -23,7 +22,7 @@ Vaccine Details
 
 **Table of Contents**
 
-* [Setup](#setup)
+* [Setup](#setup)__
 * [Usage](#usage)
 * [Decoding Steps](#decoding-steps)
 * [EU Documents and Code](#eu-documents-and-code)
