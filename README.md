@@ -1,5 +1,5 @@
 # Overview
-This CLI tool (golang) decodes an EU Digital COVID Certificate (also referred to as Digital Green Certificates), it does NOT
+This CLI tool (golang) decodes an EU Digital COVID-19 Certificate (also referred to as Digital Green Certificates), it does NOT
 yet verify the Signature. Example Certificate Information
 
 Example output:
@@ -24,7 +24,7 @@ Vaccine Details
 **Table of Contents**
 
 * [Setup](#setup)
-* [How To Run](#how-to-run)
+* [Usage](#usage)
 * [Decoding Steps](#decoding-steps)
 * [EU Documents and Code](#eu-documents-and-code)
 * [CBOR Web Token Specifications](#cbor-web-token-specifications)
@@ -36,7 +36,7 @@ Vaccine Details
 1. Install Go (1.14 or higher) see https://golang.org/doc/install
 2. Git Clone/Fork this repo
 
-# How to run
+# Usage
 Run from the repo root directory, main is decoder.go
 
 The CLI flags are
