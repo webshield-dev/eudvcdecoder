@@ -1,6 +1,25 @@
 # Overview
 This CLI tool (golang) decodes an EU Digital COVID Certificate (also referred to as Digital Green Certificates), it does NOT
-yet verify the Signature.
+yet verify the Signature. Example Certificate Information
+
+Example output:
+```
+go run . -qrfile ./testfiles/vaccine/dr_1.png
+... removed for clarity ...
+
+**** EU Covid Certificate Summary **** 
+Name:Erika Mustermann
+DOB :1964-08-12
+Vaccine Details
+  Doses Administered: 2
+  Doses Required:     2
+  When:               2021-05-29
+  Vaccine Product:    COVID-19 Vaccine Moderna
+  Vaccine Type:       SARS-CoV-2 mRNA vaccine
+  Vaccine Maker:      Moderna Biotech Spain S.L.
+  Issuer:             Robert Koch-Institut
+  ID:                 URN:UVCI:01DE/IZ12345A/5CWLU12RNOB9RXSEOP6FG8#W
+```
 
 **Table of Contents**
 
