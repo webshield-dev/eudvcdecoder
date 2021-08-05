@@ -24,7 +24,7 @@ Vaccine Details
 
 **Table of Contents**
 
-* [Setup](#setup)__
+* [Setup](#setup)
 * [Usage](#usage)
 * [Decoding Steps](#decoding-steps)
 * [EU Documents and Code](#eu-documents-and-code)
