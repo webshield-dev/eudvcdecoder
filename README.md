@@ -42,6 +42,7 @@ Example output
 
 2. Github Repo
     - https://github.com/eu-digital-green-certificates
+    - https://github.com/ehn-dcc-development
 
 3. EU Technical Specification Volumes
     - Volume 1 - Technical Specifications for Digital Green Certificates
@@ -55,6 +56,9 @@ Example output
     - Certificate JSON Schema
         - https://github.com/ehn-dcc-development/ehn-dcc-schema
         - https://ec.europa.eu/health/sites/default/files/ehealth/docs/covid-certificate_json_specification_en.pdf
+    - Value Sets for codes etc
+        - https://ec.europa.eu/health/sites/default/files/ehealth/docs/digital-green-value-sets_en.pdf
+        - https://github.com/ehn-dcc-development/ehn-dcc-schema/tree/release/1.3.0/valuesets
 
 
 # CBOR Web Token Specifications
