@@ -70,6 +70,9 @@ func main() {
 
 	}
 
+	maxVerbose := verbose > 1
+	lowVerbose := verbose == 1
+
 	//set up value set data
 	vsDataPath := os.Getenv("VS_DATA_PATH")
 	if vsDataPath == "" {
@@ -86,77 +89,80 @@ func main() {
 	fmt.Printf("Decoding EU Covid Certificate\n")
 	fmt.Printf("  qrCodefile=%s  ValueSetPath=%s  verbose=%d\n", cliQRFilename, vsDataPath, verbose)
 
+
+
 	decodeOutput, err := dc.FromFileQRCodePNG(cliQRFilename)
 	if err != nil {
-		_ = displayResults(vsMapper, decodeOutput, verbose != 0)
+		_ = displayResults(vsMapper, decodeOutput, lowVerbose, maxVerbose)
 		fmt.Printf("ERROR processing certficate err=%s\n", err)
 		os.Exit(1)
 	}
 
-	if err := displayResults(vsMapper, decodeOutput, verbose != 0); err != nil {
+	if err := displayResults(vsMapper, decodeOutput, lowVerbose, maxVerbose); err != nil {
 		fmt.Printf("error displaying successful decode err=%s\n", err)
 		os.Exit(1)
 	}
 
 }
 
-func displayResults(vsMapper *helper.ValueSetMapper, output *helper.Output, verbose bool) error {
+func displayResults(vsMapper *helper.ValueSetMapper, output *helper.Output,
+	lowVerbose bool, maxVerbose bool) error {
 	if output == nil {
 		return nil
 	}
 
 	if len(output.DecodedQRCode) != 0 {
 		fmt.Printf("  Step 1 - Read QR Code PNG %s Successfully...\n", cliQRFilename)
-		if verbose {
+		if maxVerbose {
 			fmt.Printf("    value=%s\n", string(output.DecodedQRCode))
 		}
 	}
 
 	if len(output.Base45Decoded) != 0 {
 		fmt.Printf("  Step 2 - Base45 Decoded Successfully...\n")
-		if verbose {
+		if maxVerbose {
 			fmt.Printf("    hex(value)=%s\n", hex.EncodeToString(output.Base45Decoded))
 		}
 	}
 
 	if len(output.Inflated) != 0 {
 		fmt.Printf("  Step 3 - ZLIB Inflated Successfully...\n")
-		if verbose {
+		if maxVerbose {
 			fmt.Printf("    hex(value)=%s\n", hex.EncodeToString(output.Inflated))
 		}
 	}
 
 	if output.CBORUnmarshalledI != nil {
 		fmt.Printf("  Step 4 - CBOR UnMarshalled CBOR Web Token (CWT) Successfully...\n")
-		if verbose {
+		if maxVerbose {
 			fmt.Printf("    value=%+v\n", output.CBORUnmarshalledI)
 		}
 	}
 
 	if output.ProtectedHeader != nil {
 		fmt.Printf("    CWT CBOR UnMarshalled ProtectedHeader Successfully...\n")
-		if verbose {
+		if maxVerbose {
 			fmt.Printf("      value=%+v\n", *output.ProtectedHeader)
 		}
 	}
 
 	if output.UnProtectedHeader != nil {
 		fmt.Printf("    CWT Read UnProtectedHeader Successfully...\n")
-		if verbose {
+		if maxVerbose {
 			fmt.Printf("      value=%+v\n", *output.UnProtectedHeader)
 		}
 	}
 
 	if output.PayloadI != nil {
 		fmt.Printf("    CWT CBOR UnMarshalled Payload Successfully...\n")
-		if verbose {
+		if maxVerbose {
 			fmt.Printf("      value=%+v\n", output.PayloadI)
 		}
 	}
 
 	if len(output.COSESignature) != 0 {
 		fmt.Printf("    CWT Read COSE Signature (single signer) Successfully...\n")
-		if verbose {
+		if maxVerbose {
 			fmt.Printf("      hex(value)=%s\n", hex.EncodeToString(output.COSESignature))
 		}
 	}
@@ -177,34 +183,37 @@ func displayResults(vsMapper *helper.ValueSetMapper, output *helper.Output, verb
 		//Lets display all the important parts
 		//
 		fmt.Printf("Successfully Decoded EU Covid Certificate\n")
-		fmt.Printf("\n**** EU Covid Certificate Details **** \n")
 
-		//
-		//Protected header
-		//
-		prettyResult, err := helper.PrettyIdent(output.ProtectedHeader)
-		if err != nil {
-			return err
+		if lowVerbose {
+			fmt.Printf("\n**** EU Covid Certificate Details **** \n")
+
+			//
+			//Protected header
+			//
+			prettyResult, err := helper.PrettyIdent(output.ProtectedHeader)
+			if err != nil {
+				return err
+			}
+			fmt.Printf("Protected Header=%s\n", prettyResult)
+
+			//
+			// Common payload
+			//
+			prettyPayload, err := helper.PettyIdentCommonPayload(output.CommonPayload)
+			if err != nil {
+				fmt.Printf("Error pretty printing payload raw=%+v\n", output.PayloadI)
+				return err
+			}
+			fmt.Printf("Common Payload=%s\n", prettyPayload)
+
+			//
+			// Signature in hex
+			//
+			fmt.Printf("hex(signature)=%s\n", hex.EncodeToString(output.COSESignature))
 		}
-		fmt.Printf("Protected Header=%s\n", prettyResult)
 
 		//
-		// Common payload
-		//
-		prettyPayload, err := helper.PettyIdentCommonPayload(output.CommonPayload)
-		if err != nil {
-			fmt.Printf("Error pretty printing payload raw=%+v\n", output.PayloadI)
-			return err
-		}
-		fmt.Printf("Common Payload=%s\n", prettyPayload)
-
-		//
-		// Signature in hex
-		//
-		fmt.Printf("hex(signature)=%s\n", hex.EncodeToString(output.COSESignature))
-
-		//
-		// Display Summary
+		// Always Display Summary
 		//
 		displaySummary(vsMapper, output)
 	}
