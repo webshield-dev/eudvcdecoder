@@ -1,19 +1,31 @@
 # Overview
-This CLI tool decodes an EU Digital COVID Certificate (also referred to as Digital Green Certificates), it does NOT
+This CLI tool (golang) decodes an EU Digital COVID Certificate (also referred to as Digital Green Certificates), it does NOT
 yet verify the Signature.
 
+**Table of Contents**
+
+* [How To Run](#how-to-run)
+* [Decoding Steps](#decoding-steps)
+* [EU Documents and Code](#eu-documents-and-code)
+* [CBOR Web Token Specifications](#cbor-web-token-specifications)
+* [Development and GO version](#development-and-go-version)
+* [Example Verbose 1 Output](#example-verbose-1-output)
+* [Example Verbose 2 Output](#example-verbose-2-output)
+
 # How to run
+To run assumes go has been installed.
+
 The CLI flags are
 1. `-qrfile <value>` file containing the qr code png
 2. `-verbose <level>` where level is 0 -> 9, default is zero
 
-Example running with no verbose
+Run examples:
 - `go run . -qrfile ./testfiles/vaccine/de_1.png`            <-- no verbose
 - `go run . -qrfile ./testfiles/vaccine/de_1.png -verbose 0` <-- no verbose
 - `go run . -qrfile ./testfiles/vaccine/de_1.png -verbose 1` <-- displayed details on protected header and common payload
 - `go run . -qrfile ./testfiles/vaccine/de_1.png -verbose 2` <-- display details on each decoding step  
 
-No verbose output
+Example output:
 ```
 go run . -qrfile ./testfiles/vaccine/dr_1.png
 Decoding EU Covid Certificate
@@ -60,9 +72,7 @@ Testing
 - Test QR.png(s) are from `https://github.com/eu-digital-green-certificates/dgc-testdata`
 - `make test` runs local tests
 
-# Supporting Documents
-
-## EU Documents and Code
+# EU Documents and Code
 
 1. A good starting place has links to all other technical documents
     - https://ec.europa.eu/health/ehealth/covid-19_en
@@ -88,7 +98,7 @@ Testing
         - https://ec.europa.eu/health/sites/default/files/ehealth/docs/digital-green-value-sets_en.pdf
         - https://github.com/ehn-dcc-development/ehn-dcc-schema/tree/release/1.3.0/valuesets
     
-## CBOR Web Token Specifications
+# CBOR Web Token Specifications
 The certificate is a CBOR Web Token so used the following to unpack
 
 - CBOR spec -  Concise Binary Object Representation (CBOR) -  CBOR Web Token (CWT)
@@ -101,7 +111,9 @@ The certificate is a CBOR Web Token so used the following to unpack
 - Decode CBOR tags
     - `https://datatracker.ietf.org/doc/html/draft-bormann-cbor-notable-tags-01`
 
-# Development
+# Development and GO version
+Go version 1.14
+
 Make targets
 - `make test` lint and run tests
 
