@@ -3,10 +3,12 @@ This CLI tool (golang) decodes an EU Digital COVID-19 Certificate (also referred
 yet verify the Signature. Example Certificate Information
 
 ```
-go run . -qrfile ./testfiles/vaccine/dr_1.png
-... removed for clarity ...
+go run . -qrfile ./testfiles/vaccine/dr_1.png -verbose 0
+Decoding EU Covid-19 Certificate
+... details removed for clarity ...
+Successfully Decoded EU Covid-19 Certificate
 
-**** EU Covid Certificate Summary **** 
+**** EU Covid-19 Certificate Summary **** 
 Name:Erika Mustermann
 DOB :1964-08-12
 Vaccine Details
@@ -50,8 +52,8 @@ Run examples:
 
 Example output:
 ```
-go run . -qrfile ./testfiles/vaccine/dr_1.png
-Decoding EU Covid Certificate
+go run . -qrfile ./testfiles/vaccine/dr_1.png -verbose 0
+Decoding EU Covid-19 Certificate
   qrCodefile=./testfiles/vaccine/dr_1.png  ValueSetPath=./valuesetdata  verbose=0
   Step 1 - Read QR Code PNG ./testfiles/vaccine/dr_1.png Successfully...
   Step 2 - Base45 Decoded Successfully...
@@ -61,9 +63,9 @@ Decoding EU Covid Certificate
     CWT Read UnProtectedHeader Successfully...
     CWT CBOR UnMarshalled Payload Successfully...
     CWT Read COSE Signature (single signer) Successfully...
-Successfully Decoded EU Covid Certificate
+Successfully Decoded EU Covid-19 Certificate
 
-**** EU Covid Certificate Summary **** 
+**** EU Covid-19 Certificate Summary **** 
 Name:Erika Mustermann
 DOB :1964-08-12
 Vaccine Details
@@ -137,7 +139,7 @@ The certificate is a CBOR Web Token so used the following to unpack
 # Example Verbose 1 Output
 ```
 go run . -qrfile ./testfiles/vaccine/dr_1.png -verbose 1
-Decoding EU Covid Certificate
+Decoding EU Covid-19 Certificate
   qrCodefile=./testfiles/vaccine/dr_1.png  ValueSetPath=./valuesetdata  verbose=1
   Step 1 - Read QR Code PNG ./testfiles/vaccine/dr_1.png Successfully...
   Step 2 - Base45 Decoded Successfully...
@@ -147,9 +149,9 @@ Decoding EU Covid Certificate
     CWT Read UnProtectedHeader Successfully...
     CWT CBOR UnMarshalled Payload Successfully...
     CWT Read COSE Signature (single signer) Successfully...
-Successfully Decoded EU Covid Certificate
+Successfully Decoded EU Covid-19 Certificate
 
-**** EU Covid Certificate Details **** 
+**** EU Covid-19 Certificate Details **** 
 Protected Header={
   "Alg": -7,
   "Kid": null
@@ -187,7 +189,7 @@ Common Payload={
 }
 hex(signature)=218ebc2a2a77c1796c95a8c942987d461411b0075fd563447295250d5ead69f3b8f6083a515bd97656e87aca01529e6aa0e09144fc07e2884c93080f1419e82f
 
-**** EU Covid Certificate Summary **** 
+**** EU Covid-19 Certificate Summary **** 
 Name:Erika Mustermann
 DOB :1964-08-12
 Vaccine Details
@@ -224,7 +226,7 @@ Decoding EU Covid Certificate
       hex(value)=218ebc2a2a77c1796c95a8c942987d461411b0075fd563447295250d5ead69f3b8f6083a515bd97656e87aca01529e6aa0e09144fc07e2884c93080f1419e82f
 Successfully Decoded EU Covid Certificate
 
-**** EU Covid Certificate Summary **** 
+**** EU Covid-19 Certificate Summary **** 
 Name:Erika Mustermann
 DOB :1964-08-12
 Vaccine Details

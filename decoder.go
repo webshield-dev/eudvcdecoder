@@ -86,7 +86,7 @@ func main() {
 
 	dc := helper.NewDecoder(true, true)
 
-	fmt.Printf("Decoding EU Covid Certificate\n")
+	fmt.Printf("Decoding EU Covid-19 Certificate\n")
 	fmt.Printf("  qrCodefile=%s  ValueSetPath=%s  verbose=%d\n", cliQRFilename, vsDataPath, verbose)
 
 
@@ -182,10 +182,10 @@ func displayResults(vsMapper *helper.ValueSetMapper, output *helper.Output,
 		//
 		//Lets display all the important parts
 		//
-		fmt.Printf("Successfully Decoded EU Covid Certificate\n")
+		fmt.Printf("Successfully Decoded EU Covid-19 Certificate\n")
 
 		if lowVerbose {
-			fmt.Printf("\n**** EU Covid Certificate Details **** \n")
+			fmt.Printf("\n**** EU Covid-19 Certificate Details **** \n")
 
 			//
 			//Protected header
@@ -228,7 +228,7 @@ func displaySummary(vsMapper *helper.ValueSetMapper, output *helper.Output) {
 		return
 	}
 
-	fmt.Printf("\n**** EU Covid Certificate Summary **** \n")
+	fmt.Printf("\n**** EU Covid-19 Certificate Summary **** \n")
 
 	fmt.Printf("")
 
