@@ -1,9 +1,7 @@
 package main
 
 import (
-	"bytes"
 	"encoding/hex"
-	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
@@ -72,7 +70,6 @@ func main() {
 
 	}
 
-
 	//set up value set data
 	vsDataPath := os.Getenv("VS_DATA_PATH")
 	if vsDataPath == "" {
@@ -88,7 +85,6 @@ func main() {
 
 	fmt.Printf("Decoding EU Covid Certificate\n")
 	fmt.Printf("  qrCodefile=%s  ValueSetPath=%s  verbose=%d\n", cliQRFilename, vsDataPath, verbose)
-
 
 	decodeOutput, err := dc.FromFileQRCodePNG(cliQRFilename)
 	if err != nil {
@@ -186,7 +182,7 @@ func displayResults(vsMapper *helper.ValueSetMapper, output *helper.Output, verb
 		//
 		//Protected header
 		//
-		prettyResult, err := prettyIdent(output.ProtectedHeader)
+		prettyResult, err := helper.PrettyIdent(output.ProtectedHeader)
 		if err != nil {
 			return err
 		}
@@ -195,12 +191,12 @@ func displayResults(vsMapper *helper.ValueSetMapper, output *helper.Output, verb
 		//
 		// Common payload
 		//
-
-		prettyResult, err = prettyIdent(output.CommonPayload)
+		prettyPayload, err := helper.PettyIdentCommonPayload(output.CommonPayload)
 		if err != nil {
+			fmt.Printf("Error pretty printing payload raw=%+v\n", output.PayloadI)
 			return err
 		}
-		fmt.Printf("Common Payload=%s\n", prettyResult)
+		fmt.Printf("Common Payload=%s\n", prettyPayload)
 
 		//
 		// Signature in hex
@@ -223,20 +219,17 @@ func displaySummary(vsMapper *helper.ValueSetMapper, output *helper.Output) {
 		return
 	}
 
-
 	fmt.Printf("\n**** EU Covid Certificate Summary **** \n")
 
 	fmt.Printf("")
 
 	fullName := cert.Name.GN + " " + cert.Name.FN
 
-
 	fmt.Printf("Name:%s\n", fullName)
 	fmt.Printf("DOB :%s\n", cert.DOB)
 
 	fmt.Printf("Vaccine Details\n")
 	for _, vaccine := range cert.Vaccine {
-
 
 		//display MP - Medicinal product used for this specific dose of vaccination. A
 		maVS := vsMapper.DecodeMA(vaccine.MA)
@@ -260,23 +253,7 @@ func displaySummary(vsMapper *helper.ValueSetMapper, output *helper.Output) {
 			fmt.Printf("  Vaccine Maker:      %s\n", maVS.Display)
 		}
 		fmt.Printf("  Issuer:             %s\n", vaccine.IS)
-		fmt.Printf("  ID:                 %s\n",vaccine.CI)
+		fmt.Printf("  ID:                 %s\n", vaccine.CI)
 
 	}
-
-
-
-}
-
-func prettyIdent(i interface{}) (string, error) {
-
-	b, err := json.Marshal(i)
-	if err != nil {
-		return "", err
-	}
-
-	dst := &bytes.Buffer{}
-	_ = json.Indent(dst, b, "", "  ")
-
-	return dst.String(), nil
 }

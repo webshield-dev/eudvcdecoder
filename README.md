@@ -7,12 +7,12 @@ The CLI flags are
 2. -verbose <level> where level is 0 -> 9, default is zero
 
 Example running with no verbose
-- `go run . -qrfile ./testfiles/at_1.png`
-- `go run . -qrfile ./testfiles/ie_1_qr.png`
+- `go run . -qrfile ./testfiles/vaccine/at_1.png`
+- `go run . -qrfile ./testfiles/vaccine/ie_1_qr.png`
 
 Example running with verbose
 
-    `go run . -qrfile ./testfiles/ie_1_qr.png -verbose 1`
+    `go run . -qrfile ./testfiles/vaccine/ie_1_qr.png -verbose 1`
 
 
 The **decoding steps** are as follows:
@@ -25,9 +25,12 @@ The **decoding steps** are as follows:
 7. NOT implemented check the COSE signature by getting signing key from issuing State and using it to check the CBOR signature.
 
 Limitations
-- Only decodes vaccine credentials not test or other
+- Only pretty prints vaccine credentials not test or recovery, to see later use verbose mode
+- Does **NOT** verify signature
 
-Test files are from `https://github.com/eu-digital-green-certificates/dgc-testdata`
+Testing
+- Test QR.png(s) are from `https://github.com/eu-digital-green-certificates/dgc-testdata`
+- `make test` runs local tests
 
 Example output
 
@@ -41,8 +44,9 @@ Example output
     - https://ec.europa.eu/health/ehealth/covid-19_en
 
 2. Github Repo
-    - https://github.com/eu-digital-green-certificates
-    - https://github.com/ehn-dcc-development
+    - general - https://github.com/eu-digital-green-certificates
+    - development - https://github.com/ehn-dcc-development
+    - test data - https://github.com/eu-digital-green-certificates/dgc-testdata
 
 3. EU Technical Specification Volumes
     - Volume 1 - Technical Specifications for Digital Green Certificates
