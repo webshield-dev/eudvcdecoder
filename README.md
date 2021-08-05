@@ -4,16 +4,21 @@ yet verify the Signature.
 
 **Table of Contents**
 
+* [Setup](#setup)
 * [How To Run](#how-to-run)
 * [Decoding Steps](#decoding-steps)
 * [EU Documents and Code](#eu-documents-and-code)
 * [CBOR Web Token Specifications](#cbor-web-token-specifications)
-* [Development and GO version](#development-and-go-version)
 * [Example Verbose 1 Output](#example-verbose-1-output)
 * [Example Verbose 2 Output](#example-verbose-2-output)
+* [Development](#development)
+
+# Setup
+1. Install Go (1.14 or higher) see https://golang.org/doc/install
+2. Git Clone/Fork this repo
 
 # How to run
-To run assumes go has been installed.
+Run from the repo root directory, main is decoder.go
 
 The CLI flags are
 1. `-qrfile <value>` file containing the qr code png
@@ -110,13 +115,7 @@ The certificate is a CBOR Web Token so used the following to unpack
     - `https://datatracker.ietf.org/doc/html/rfc8392`
 - Decode CBOR tags
     - `https://datatracker.ietf.org/doc/html/draft-bormann-cbor-notable-tags-01`
-
-# Development and GO version
-Go version 1.14
-
-Make targets
-- `make test` lint and run tests
-
+    
 # Example Verbose 1 Output
 ```
 go run . -qrfile ./testfiles/vaccine/dr_1.png -verbose 1
@@ -220,3 +219,15 @@ Vaccine Details
   Issuer:             Robert Koch-Institut
   ID:                 URN:UVCI:01DE/IZ12345A/5CWLU12RNOB9RXSEOP6FG8#W
 ```
+
+# Development
+- Go version >= 1.14
+- Is a module  
+- Make targets
+    - `make test` lint and run tests
+- Files
+    - decoder.go - main
+    - helper - code to decode and display certificates
+    - datamodel - the certificate structs
+    - valuesetdata - copies of valueset data from https://github.com/ehn-dcc-development/ehn-dcc-schema/tree/release/1.3.0/valuesets
+    - testfiles - example qr code png from https://github.com/eu-digital-green-certificates/dgc-testdata
