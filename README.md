@@ -3,7 +3,7 @@ This CLI tool (golang) decodes an EU Digital COVID-19 Certificate (also referred
 yet verify the Signature. Example Certificate Information
 
 ```
-go run . -qrfile ./testfiles/vaccine/dr_1.png -verbose 0
+./bin/decoder.mac -qrfile ./testfiles/vaccine/dr_1.png
 Decoding EU Covid-19 Certificate
 ... details removed for clarity ...
 Successfully Decoded EU Covid-19 Certificate
