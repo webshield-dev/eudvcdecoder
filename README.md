@@ -34,21 +34,25 @@ Vaccine Details
 * [Development](#development)
 
 # Setup
-1. Install Go (1.14 or higher) see https://golang.org/doc/install
-2. Git Clone/Fork this repo
+1. Git Clone/Fork this repo
+2. [optional] the macOS binary is part of the repo 
+   - Install Go (1.14 or higher) see https://golang.org/doc/install
+
 
 # Usage
-Run from the repo root directory, main is decoder.go
-
 The CLI flags are
 1. `-qrfile <value>` file containing the qr code png
 2. `-verbose <level>` where level is 0 -> 9, default is zero
 
-Run examples:
-- `go run . -qrfile ./testfiles/vaccine/de_1.png`            <-- no verbose
-- `go run . -qrfile ./testfiles/vaccine/de_1.png -verbose 0` <-- no verbose
-- `go run . -qrfile ./testfiles/vaccine/de_1.png -verbose 1` <-- displayed details on protected header and common payload
-- `go run . -qrfile ./testfiles/vaccine/de_1.png -verbose 2` <-- display details on each decoding step  
+Executable examples
+- `./bin/decoder.mac -qrfile ./testfiles/vaccine/dr_1.png`   <-- no verbose
+- `go run . -qrfile ./testfiles/vaccine/dr_1.png -verbose 0` <-- no verbose
+- `go run . -qrfile ./testfiles/vaccine/dr_1.png -verbose 1` <-- displayed details on protected header and common payload
+- `go run . -qrfile ./testfiles/vaccine/dr_1.png -verbose 2` <-- display details on each decoding step
+
+Go run examples:
+- `go run . -qrfile ./testfiles/vaccine/dr_1.png`            <-- no verbose
+
 
 Example output:
 ```
