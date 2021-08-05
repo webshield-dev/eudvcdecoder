@@ -3,11 +3,7 @@ This CLI tool (golang) decodes an EU Digital COVID-19 Certificate (also referred
 yet verify the Signature. Example Certificate Information
 
 ```
-./bin/decoder.mac -qrfile ./testfiles/vaccine/dr_1.png
-Decoding EU Covid-19 Certificate
-... details removed for clarity ...
-Successfully Decoded EU Covid-19 Certificate
-
+... run details removed for clarity ...
 **** EU Covid-19 Certificate Summary **** 
 Name:Erika Mustermann
 DOB :1964-08-12
@@ -35,8 +31,8 @@ Vaccine Details
 
 # Setup
 1. Git Clone/Fork this repo
-2. [optional] the macOS binary is part of the repo 
-   - Install Go (1.14 or higher) see https://golang.org/doc/install
+2. [optional] if using the the macOS binary then no need to install go
+   - If using go run then Install Go (1.14 or higher) see https://golang.org/doc/install
 
 
 # Usage
@@ -44,19 +40,18 @@ The CLI flags are
 1. `-qrfile <value>` file containing the qr code png
 2. `-verbose <level>` where level is 0 -> 9, default is zero
 
-Executable examples
+Using executable (macOS only)
 - `./bin/decoder.mac -qrfile ./testfiles/vaccine/dr_1.png`   <-- no verbose
-- `go run . -qrfile ./testfiles/vaccine/dr_1.png -verbose 0` <-- no verbose
-- `go run . -qrfile ./testfiles/vaccine/dr_1.png -verbose 1` <-- displayed details on protected header and common payload
-- `go run . -qrfile ./testfiles/vaccine/dr_1.png -verbose 2` <-- display details on each decoding step
+- `./bin/decoder.mac -qrfile ./testfiles/vaccine/dr_1.png -verbose 0` <-- no verbose
+- `./bin/decoder.mac ./testfiles/vaccine/dr_1.png -verbose 1` <-- displayed details on protected header and common payload
+- `./bin/decoder.mac . -qrfile ./testfiles/vaccine/dr_1.png -verbose 2` <-- display details on each decoding step
 
-Go run examples:
+Using Go run (all platforms)
 - `go run . -qrfile ./testfiles/vaccine/dr_1.png`            <-- no verbose
-
 
 Example output:
 ```
-go run . -qrfile ./testfiles/vaccine/dr_1.png -verbose 0
+./bin/decoder.mac -qrfile ./testfiles/vaccine/dr_1.png
 Decoding EU Covid-19 Certificate
   qrCodefile=./testfiles/vaccine/dr_1.png  ValueSetPath=./valuesetdata  verbose=0
   Step 1 - Read QR Code PNG ./testfiles/vaccine/dr_1.png Successfully...
