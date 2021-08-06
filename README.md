@@ -31,7 +31,7 @@ Vaccine Details
 
 # Setup
 1. Git Clone/Fork this repo
-2. [optional] if using the the macOS binary then no need to install go
+2. [optional] The repo includes a macOS binary, otherwise you need to install Go.
    - If using go run then Install Go (1.14 or higher) see https://golang.org/doc/install
 
 
