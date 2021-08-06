@@ -1,5 +1,5 @@
 # Overview
-This CLI tool (golang) decodes an EU Digital COVID-19 Certificate (also referred to as Digital Green Certificates) QRCode.png, it does NOT
+This CLI tool decodes an EU Digital COVID-19 Certificate (also referred to as Digital Green Certificates) QRCode.png, it does NOT
 yet verify the Signature. Example Certificate Information
 
 ```
