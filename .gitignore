@@ -16,3 +16,6 @@
 
 # OS Files
 .DS_Store
+
+#ide
+.idea
