@@ -31,7 +31,7 @@ Vaccine Details
 
 # Setup
 1. Git Clone/Fork this repo
-2. [optional] The repo includes a macOS binary, otherwise you need to install Go.
+2. The repo includes a **macOS binary** and a **linux binary**, otherwise you need to install Go.
    - If using go run then Install Go (1.14 or higher) see https://golang.org/doc/install
 
 
@@ -40,14 +40,16 @@ The CLI flags are
 1. `-qrfile <value>` the QRcode.png
 2. `-verbose <level>` where level is 0 -> 9, default is zero
 
-Using executable (macOS only)
-- `./bin/decoder.mac -qrfile ./testfiles/vaccine/dr_1.png`   <-- no verbose
-- `./bin/decoder.mac -qrfile ./testfiles/vaccine/dr_1.png -verbose 0` <-- no verbose
-- `./bin/decoder.mac ./testfiles/vaccine/dr_1.png -verbose 1` <-- displayed details on protected header and common payload
-- `./bin/decoder.mac . -qrfile ./testfiles/vaccine/dr_1.png -verbose 2` <-- display details on each decoding step
+Using the executables macOS (./bin/decoder.mac) or Linux (./bin/decoder.linux)
+- `./bin/decoder.mac -qrfile ./testfiles/vaccine/dr_1.png`     <-- Mac no verbose 
+- `./bin/decoder.linux -qrfile ./testfiles/vaccine/dr_1.png`   <-- Linux no verbose
+
+verbose
+- `./bin/decoder.mac ./testfiles/vaccine/dr_1.png -verbose 1` <-- displays  protected header and common payload
+- `./bin/decoder.mac . -qrfile ./testfiles/vaccine/dr_1.png -verbose 2` <-- displays decoding step details
 
 Using Go run (all platforms)
-- `go run . -qrfile ./testfiles/vaccine/dr_1.png`            <-- no verbose
+- `go run . -qrfile ./testfiles/vaccine/dr_1.png`
 
 Example output:
 ```
