@@ -59,7 +59,7 @@ Decoding EU Covid-19 Certificate
   Step 1 - Read QR Code PNG ./testfiles/vaccine/dr_1.png Successfully...
   Step 2 - Base45 Decoded Successfully...
   Step 3 - ZLIB Inflated Successfully...
-  Step 4 - CBOR UnMarshalled CBOR Web Token (CWT) Successfully...
+  Step 4 - CBOR UnMarshalled CBOR Web Token (CWT) using COSE tagged message COSE Number=18 Successfully...
     CWT CBOR UnMarshalled ProtectedHeader Successfully...
     CWT Read UnProtectedHeader Successfully...
     CWT CBOR UnMarshalled Payload Successfully...
@@ -82,10 +82,16 @@ Vaccine Details
 
 # Decoding Steps
 The **decoding steps** are as follows:
-1. Read the QR code (.png) containing the Digital Certificate to get a base45 encoded certificate
-2. Decode the base45 certificate to get a compressed certificate
-3. ZLIB inflate the compressed certificate to get a CBOR Web Token
-4. CBOR decode the CBOR Web Token to get the protected header, unprotected header, payload, and signature
+1. Read the QR code (.png) to get the QR alphanumeric code. This is prefixed with "HC1:6BF...." so know a digital certificate
+2. Base45 decode the part after "HC1:" to get the ZLIB compressed certificate
+3. ZLIB inflate the compressed certificate to get a COSE tagged message (CBOR Object Signing and Encryption (COSE))
+4. CBOR decode the COSE tagged message that contains
+    - a Number key with value of 18 indicating that a "Cose_Sign1" object
+    - a Content key with an array of containing the CBOR Web Token parts
+        - protected header - cbor encoded []byte
+        - unprotected header - map
+        - payload  - cbor encoded []byte
+        - digital signature (a signed sha256 digest) - []byte
 5. CBOR decode the protected header to get the Signing Algorithm and KeyID
 6. CBOR decode the payload to get the issuer, iat, exp, subject information, and vaccination information
 7. NOT implemented check the COSE signature by getting signing key from issuing State and using it to check the CBOR signature.
@@ -124,15 +130,15 @@ Testing
         - https://ec.europa.eu/health/sites/default/files/ehealth/docs/digital-green-value-sets_en.pdf
         - https://github.com/ehn-dcc-development/ehn-dcc-schema/tree/release/1.3.0/valuesets
     
-# CBOR Web Token Specifications
-The certificate is a CBOR Web Token so used the following to unpack
+# CBOR Specifications
+Used the following CBOR related specifications to unpack the credential
 
-- CBOR spec -  Concise Binary Object Representation (CBOR) -  CBOR Web Token (CWT)
+- Concise Binary Object Representation (CBOR)
     - `https://datatracker.ietf.org/doc/html/rfc7049`
-- COSE spec -  CBOR Object Signing and Encryption (COSE)
+- CBOR Object Signing and Encryption (COSE)
     - `https://datatracker.ietf.org/doc/html/rfc8152`
     - certificate uses COSE Single Signer (COSE_Sign1), which has a CBOR tag of 18
-- CBOR web token
+- CBOR Web Token (CWT)
     - `https://datatracker.ietf.org/doc/html/rfc8392`
 - Decode CBOR tags
     - `https://datatracker.ietf.org/doc/html/draft-bormann-cbor-notable-tags-01`
@@ -145,7 +151,7 @@ Decoding EU Covid-19 Certificate
   Step 1 - Read QR Code PNG ./testfiles/vaccine/dr_1.png Successfully...
   Step 2 - Base45 Decoded Successfully...
   Step 3 - ZLIB Inflated Successfully...
-  Step 4 - CBOR UnMarshalled CBOR Web Token (CWT) Successfully...
+  Step 4 - CBOR UnMarshalled CBOR Web Token (CWT) using COSE tagged message COSE Number=18 Successfully...
     CWT CBOR UnMarshalled ProtectedHeader Successfully...
     CWT Read UnProtectedHeader Successfully...
     CWT CBOR UnMarshalled Payload Successfully...
@@ -215,7 +221,7 @@ Decoding EU Covid Certificate
     hex(value)=789c0163019cfed28443a10126a104480c4b15512be9140159010da401624445061a60b29429041a61f39fa9390103a101a4617681aa626369782f55524e3a555643493a303144452f495a3132333435412f3543574c553132524e4f4239525853454f5036464738235762636f62444562646e026264746a323032312d30352d323962697374526f62657274204b6f63682d496e737469747574626d616d4f52472d313030303331313834626d706c45552f312f32302f3135303762736402627467693834303533393030366276706a3131313933343930303763646f626a313936342d30382d3132636e616da462666e6a4d75737465726d616e6e62676e654572696b6163666e746a4d55535445524d414e4e63676e74654552494b416376657265312e302e305840218ebc2a2a77c1796c95a8c942987d461411b0075fd563447295250d5ead69f3b8f6083a515bd97656e87aca01529e6aa0e09144fc07e2884c93080f1419e82f1c66773a
   Step 3 - ZLIB Inflated Successfully...
     hex(value)=d28443a10126a104480c4b15512be9140159010da401624445061a60b29429041a61f39fa9390103a101a4617681aa626369782f55524e3a555643493a303144452f495a3132333435412f3543574c553132524e4f4239525853454f5036464738235762636f62444562646e026264746a323032312d30352d323962697374526f62657274204b6f63682d496e737469747574626d616d4f52472d313030303331313834626d706c45552f312f32302f3135303762736402627467693834303533393030366276706a3131313933343930303763646f626a313936342d30382d3132636e616da462666e6a4d75737465726d616e6e62676e654572696b6163666e746a4d55535445524d414e4e63676e74654552494b416376657265312e302e305840218ebc2a2a77c1796c95a8c942987d461411b0075fd563447295250d5ead69f3b8f6083a515bd97656e87aca01529e6aa0e09144fc07e2884c93080f1419e82f
-  Step 4 - CBOR UnMarshalled CBOR Web Token (CWT) Successfully...
+  Step 4 - CBOR UnMarshalled CBOR Web Token (CWT) using COSE tagged message COSE Number=18 Successfully...
     value={Number:18 Content:[[161 1 38] map[4:[12 75 21 81 43 233 20 1]] [164 1 98 68 69 6 26 96 178 148 41 4 26 97 243 159 169 57 1 3 161 1 164 97 118 129 170 98 99 105 120 47 85 82 78 58 85 86 67 73 58 48 49 68 69 47 73 90 49 50 51 52 53 65 47 53 67 87 76 85 49 50 82 78 79 66 57 82 88 83 69 79 80 54 70 71 56 35 87 98 99 111 98 68 69 98 100 110 2 98 100 116 106 50 48 50 49 45 48 53 45 50 57 98 105 115 116 82 111 98 101 114 116 32 75 111 99 104 45 73 110 115 116 105 116 117 116 98 109 97 109 79 82 71 45 49 48 48 48 51 49 49 56 52 98 109 112 108 69 85 47 49 47 50 48 47 49 53 48 55 98 115 100 2 98 116 103 105 56 52 48 53 51 57 48 48 54 98 118 112 106 49 49 49 57 51 52 57 48 48 55 99 100 111 98 106 49 57 54 52 45 48 56 45 49 50 99 110 97 109 164 98 102 110 106 77 117 115 116 101 114 109 97 110 110 98 103 110 101 69 114 105 107 97 99 102 110 116 106 77 85 83 84 69 82 77 65 78 78 99 103 110 116 101 69 82 73 75 65 99 118 101 114 101 49 46 48 46 48] [33 142 188 42 42 119 193 121 108 149 168 201 66 152 125 70 20 17 176 7 95 213 99 68 114 149 37 13 94 173 105 243 184 246 8 58 81 91 217 118 86 232 122 202 1 82 158 106 160 224 145 68 252 7 226 136 76 147 8 15 20 25 232 47]]}
     CWT CBOR UnMarshalled ProtectedHeader Successfully...
       value={Alg:-7 Kid:[]}

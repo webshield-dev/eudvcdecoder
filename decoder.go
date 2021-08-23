@@ -133,35 +133,36 @@ func displayResults(vsMapper *helper.ValueSetMapper, output *helper.Output,
 	}
 
 	if output.CBORUnmarshalledI != nil {
-		fmt.Printf("  Step 4 - CBOR UnMarshalled CBOR Web Token (CWT) Successfully...\n")
+		fmt.Printf("  Step 4 - CBOR UnMarshalled CBOR Web Token (CWT) using COSE tagged message COSE Number=%d Successfully...\n",
+			output.COSeCBORTag)
 		if maxVerbose {
 			fmt.Printf("    value=%+v\n", output.CBORUnmarshalledI)
 		}
 	}
 
 	if output.ProtectedHeader != nil {
-		fmt.Printf("    CWT CBOR UnMarshalled ProtectedHeader Successfully...\n")
+		fmt.Printf("    CWT CBOR UnMarshalled the Protected Header Successfully...\n")
 		if maxVerbose {
-			fmt.Printf("      value=%+v\n", *output.ProtectedHeader)
+			fmt.Printf("      value=%+v\n", output.ProtectedHeader)
 		}
 	}
 
 	if output.UnProtectedHeader != nil {
-		fmt.Printf("    CWT Read UnProtectedHeader Successfully...\n")
+		fmt.Printf("    CWT Read the UnProtected Header Map Successfully...\n")
 		if maxVerbose {
 			fmt.Printf("      value=%+v\n", *output.UnProtectedHeader)
 		}
 	}
 
 	if output.PayloadI != nil {
-		fmt.Printf("    CWT CBOR UnMarshalled Payload Successfully...\n")
+		fmt.Printf("    CWT CBOR UnMarshalled the Payload Successfully...\n")
 		if maxVerbose {
 			fmt.Printf("      value=%+v\n", output.PayloadI)
 		}
 	}
 
 	if len(output.COSESignature) != 0 {
-		fmt.Printf("    CWT Read COSE Signature (single signer) Successfully...\n")
+		fmt.Printf("    CWT Read the COSE Signature (single signer) Successfully...\n")
 		if maxVerbose {
 			fmt.Printf("      hex(value)=%s\n", hex.EncodeToString(output.COSESignature))
 		}

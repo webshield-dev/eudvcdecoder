@@ -8,7 +8,7 @@ type DCC struct {
 	Version  string      `json:"ver"`
 	DOB      string      `json:"dob"`
 	Name     Name        `json:"nam,omitempty"`
-	Vaccine  []Vaccine     `json:"v,omitempty"`
+	Vaccine  []Vaccine   `json:"v,omitempty"`
 	Test     interface{} `json:"t,omitempty"`
 	Recovery interface{} `json:"r,omitempty"`
 }
