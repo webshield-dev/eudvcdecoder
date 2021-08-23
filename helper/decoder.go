@@ -3,6 +3,7 @@ package helper
 import (
 	"bytes"
 	"compress/zlib"
+	"encoding/hex"
 	"fmt"
 	"github.com/webshield-dev/eudvcdecoder/datamodel"
 	"image/png"
@@ -47,13 +48,18 @@ type Decoder interface {
 
 //Output the results of decoding
 type Output struct {
-	DecodedQRCode           []byte
-	Base45Decoded           []byte
-	Inflated                []byte
+	DecodedQRCode []byte
+	Base45Decoded []byte
+	Inflated      []byte
+
+	//COSeCBORTag	 credential a CBOR tagged message currently can only handle COSE_Sign1 which is 18
+	// see https://datatracker.ietf.org/doc/html/rfc8152#section-2
+	COSeCBORTag uint64
+
 	CBORUnmarshalledI       interface{}
 	CBORUnmarshalledPayload []byte //cbor encoded payload
 	PayloadI                interface{}
-	ProtectedHeader         *COSEHeader
+	ProtectedHeader         map[int]interface{} // from spec
 	UnProtectedHeader       *COSEHeader
 	COSESignature           []byte
 	CommonPayload           *datamodel.DGCCommonPayload
@@ -73,8 +79,9 @@ type Output struct {
 //       ? 7 => COSE_Signature / [+COSE_Signature] ; Counter signature
 //
 type COSEHeader struct {
-	Alg int    `cbor:"1,keyasint,omitempty"`
-	Kid []byte `cbor:"4,keyasint,omitempty"`
+	//Alg can be an int or a utf-8 string so make an interface
+	Alg interface{} `cbor:"1,keyasint,omitempty"` // this mapping is incorrect as can be utf-8 string or an int
+	Kid []byte      `cbor:"4,keyasint,omitempty"`
 }
 
 type decoderImpl struct {
@@ -142,29 +149,40 @@ func (di *decoderImpl) FromFileQRCodePNG(filename string) (*Output, error) {
 func (di *decoderImpl) cborUnMarshall(inflated []byte, outputToPopulate *Output) error {
 
 	//
-	// CBOR the whole thing to see what is there
-	// how to read
+	// Is a CBOR tagged message that has a tag to define what type of message,
+	// see https://datatracker.ietf.org/doc/html/rfc8152#section-2 for the COSE structure
+	// held in th Conents
+	//
+	//
 	// The
-	//   Number: 18  - CBOR Tag this means COSE Signle Signer Data Object -
+	//   Number: 18  - CBOR Tag this means COSE Single Signer Data Object -
 	//         - see https://datatracker.ietf.org/doc/html/draft-bormann-cbor-notable-tags-01
-	//   Contents - is a CBOR array https://datatracker.ietf.org/doc/html/rfc8152#section-2
-	//		- The set of protected header parameters wrapped in a bstr.
+	//   Contents - The COSE object structure is a CBOR array https://datatracker.ietf.org/doc/html/rfc8152#section-2
+	//   elements are
+	//		[0] The set of protected header parameters wrapped in a bstr.
 	//          - This bucket is encoded in the message as a binary object.  This value
 	//            is obtained by CBOR encoding the protected map and wrapping it in
 	//            a bstr object.
 	//          - see https://datatracker.ietf.org/doc/html/rfc8152#section-3
-	//      - The set of unprotected header parameters as a map.
+	//      [1] The set of unprotected header parameters as a map.
 	//          - see https://datatracker.ietf.org/doc/html/rfc8152#section-3
-	//      - The content of the message.  The content is either the plaintext
+	//      [2] The content of the message.  The content is either the plaintext
 	//       or the ciphertext as appropriate.  The content may be detached,
 	//       but the location is still used.  The content is wrapped in a bstr
 	//       when present and is a nil value when detached
-	var dgcI interface{}
-	if err := cbor.Unmarshal(inflated, &dgcI); err != nil {
-		return err
-	}
+	//
 
-	outputToPopulate.CBORUnmarshalledI = dgcI
+	var taggedMessage cbor.Tag
+	if err := cbor.Unmarshal(inflated, &taggedMessage); err != nil {
+		return fmt.Errorf("error unmarshalling inflated CWT into an interface{} err=%s", err)
+	}
+	outputToPopulate.COSeCBORTag = taggedMessage.Number
+	outputToPopulate.CBORUnmarshalledI = taggedMessage
+
+	//must be a COSE_Sign1 otherwise cannot read signature
+	if taggedMessage.Number != 18 {
+		return fmt.Errorf("error CBOR tagged message number must be 18 got=%d", taggedMessage.Number)
+	}
 
 	//
 	// Unpack using some structs
@@ -194,7 +212,7 @@ func (di *decoderImpl) cborUnMarshall(inflated []byte, outputToPopulate *Output)
 
 	var sCWT signedCWT
 	if err := cbor.Unmarshal(inflated, &sCWT); err != nil {
-		return err
+		return fmt.Errorf("error unmarshalling inflated CWT into an CWT struct err=%s", err)
 	}
 
 	// Add the unprotected header was a map that did not need more decoding
@@ -204,11 +222,16 @@ func (di *decoderImpl) cborUnMarshall(inflated []byte, outputToPopulate *Output)
 	// CBOR decode the protected header
 	//
 	if len(sCWT.Protected) != 0 {
-		var protectedH COSEHeader
-		if err := cbor.Unmarshal(sCWT.Protected, &protectedH); err != nil {
-			return err
+		var protectedI map[int]interface{}
+		if err := cbor.Unmarshal(sCWT.Protected, &protectedI); err != nil {
+			return fmt.Errorf("error cbor.Unmarshal protected header hex=%s err=%s",
+				hex.EncodeToString(sCWT.Protected), err)
 		}
-		outputToPopulate.ProtectedHeader = &protectedH
+		//switch protectedI.(type) {
+		//case map[interface{}]interface{}
+		//}
+
+		outputToPopulate.ProtectedHeader = protectedI
 	}
 
 	//
@@ -224,7 +247,8 @@ func (di *decoderImpl) cborUnMarshall(inflated []byte, outputToPopulate *Output)
 	//
 	// CBOR unmarshall the Payload into the common payload CBOR mapping as defined on section 2.6.3 in
 	// https://ec.europa.eu/health/sites/default/files/ehealth/docs/digital-green-certificates_v3_en.pdf
-	//
+	// also see CWT for CBOR mapping of iss, exp, iat
+	// https://datatracker.ietf.org/doc/html/rfc8392#section-4
 	type commonPayloadCBORMapping struct {
 		ISS   string             `cbor:"1,keyasint,omitempty"`
 		EXP   uint64             `cbor:"4,keyasint,omitempty"`

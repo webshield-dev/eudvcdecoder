@@ -133,7 +133,8 @@ func displayResults(vsMapper *helper.ValueSetMapper, output *helper.Output,
 	}
 
 	if output.CBORUnmarshalledI != nil {
-		fmt.Printf("  Step 4 - CBOR UnMarshalled CBOR Web Token (CWT) Successfully...\n")
+		fmt.Printf("  Step 4 - CBOR UnMarshalled CBOR Web Token (CWT) using COSE tagged message COSE Number=%d Successfully...\n",
+			output.COSeCBORTag)
 		if maxVerbose {
 			fmt.Printf("    value=%+v\n", output.CBORUnmarshalledI)
 		}
@@ -142,7 +143,7 @@ func displayResults(vsMapper *helper.ValueSetMapper, output *helper.Output,
 	if output.ProtectedHeader != nil {
 		fmt.Printf("    CWT CBOR UnMarshalled ProtectedHeader Successfully...\n")
 		if maxVerbose {
-			fmt.Printf("      value=%+v\n", *output.ProtectedHeader)
+			fmt.Printf("      value=%+v\n", output.ProtectedHeader)
 		}
 	}
 
