@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"github.com/webshield-dev/eudvcdecoder/datamodel"
+	"image"
 	"image/png"
 	"io"
 	"os"
@@ -128,6 +129,7 @@ func (di *decoderImpl) FromFileQRCodePNG(filename string) (*Output, error) {
 	}
 
 	inflated := new(bytes.Buffer)
+	/* #nosec G110 */ //ok as not passed from outside
 	_, err = io.Copy(inflated, zlibReader)
 	if err != nil {
 		return output, err
@@ -355,33 +357,42 @@ func (di *decoderImpl) debugCommonPayload(payload []byte) []string {
 
 }
 
-func (di *decoderImpl) readQRCode(filename string) ([]byte, error) {
+func (di *decoderImpl) readQRCode(filename string) (decodedQRCode []byte, err error) {
 
 	// open and decode image file
-	file, err := os.Open(filename)
+	var file *os.File
+	file, err = os.Open(os.ExpandEnv(filename))
 	if err != nil {
 		return nil, err
 	}
-	defer file.Close()
+	defer func() {
+		err1 := file.Close()
+		if err == nil {
+			err = err1
+		}
+	}()
 
-	img, err := png.Decode(file)
+	var img image.Image
+	img, err = png.Decode(file)
 	if err != nil {
 		return nil, err
 	}
 
 	// prepare BinaryBitmap
-	bmp, err := gozxing.NewBinaryBitmapFromImage(img)
+	var bmp *gozxing.BinaryBitmap
+	bmp, err = gozxing.NewBinaryBitmapFromImage(img)
 	if err != nil {
 		return nil, err
 	}
 
 	// decode image
+	var result *gozxing.Result
 	qrReader := qrcode.NewQRCodeReader()
-	result, err := qrReader.Decode(bmp, nil)
+	result, err = qrReader.Decode(bmp, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	return []byte(result.String()), nil
+	return []byte(result.String()), err
 
 }

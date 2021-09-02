@@ -1,0 +1,31 @@
+---
+kind: pipeline
+name: test
+
+trigger:
+  ref:
+    - refs/heads/main  # All pushes to main
+    - refs/pull/*/*      # All pull requests regardless of branch
+    - refs/tags/*        # Tags for releasing/etc
+
+platform:
+  os: linux
+  arch: amd64
+
+workspace:
+  base: /go
+  path: src/github.com/webshield-dev/${DRONE_REPO_NAME}
+
+steps:
+  - name: test
+    image: golang:1.17
+    pull: default
+    environment:
+      GOOS: linux
+      GOARCH: amd64
+      CGO_ENABLED: 0
+      GITHUB_ACCESS_TOKEN:
+        from_secret: GITHUB_ACCESS_TOKEN
+    commands:
+      - echo "machine github.com login webshield password $GITHUB_ACCESS_TOKEN" >> $HOME/.netrc
+      - make test
