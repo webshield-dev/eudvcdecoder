@@ -46,6 +46,10 @@ func Test_Decode(t *testing.T) {
             name:       "should support German vaccine code 1",
             qrCodePath: "../testfiles/vaccine/dr_1.png",
         },
+        {
+            name:       "should decode a WebShield generated file",
+            qrCodePath: "../testfiles/vaccine/ws_generate_qrcode.png",
+        },
     }
 
     vcDecoder := helper.NewDecoder(true, true)

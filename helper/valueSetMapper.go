@@ -99,18 +99,25 @@ func (vsm *ValueSetMapper) init() error {
 
 }
 
-func readData(path string) ([]byte, error) {
+func readData(path string) (data []byte, err error) {
 
-	f, err := os.Open(os.ExpandEnv(path))
+	var f *os.File
+	f, err = os.Open(os.ExpandEnv(path))
 	if err != nil {
 		return nil, fmt.Errorf("error reading %s err=%s", path, err)
 	}
-	defer f.Close()
 
-	data, err := ioutil.ReadAll(f)
+	defer func() {
+		err1 := f.Close()
+		if err == nil {
+			err = err1
+		}
+	}()
+
+	data, err = ioutil.ReadAll(f)
 	if err != nil {
 		return nil, err
 	}
 
-	return data, nil
+	return data, err
 }
