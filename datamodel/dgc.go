@@ -139,3 +139,25 @@ type DGCCommonPayload struct {
 	//HCERT Payload of the DGC can be a vaccine, test, or recovery
 	HCERT HCERTMap `json:"hcert"`
 }
+
+//Populate for a cbor mapped source
+func (dcp *DGCCommonPayload) Populate(source *DGCPayloadCBORMapping) {
+	dcp.ISS = source.ISS
+	dcp.IAT = source.IAT
+	dcp.EXP = source.EXP
+	dcp.HCERT = source.HCERT
+
+}
+
+//DGCPayloadCBORMapping extract the CBOR mapping from the JSON mapping just in case later need
+//to treat differently
+// CBOR unmarshall the Payload into the common payload CBOR mapping as defined on section 2.6.3 in
+// https://ec.europa.eu/health/sites/default/files/ehealth/docs/digital-green-certificates_v3_en.pdf
+// also see CWT for CBOR mapping of iss, exp, iat
+// https://datatracker.ietf.org/doc/html/rfc8392#section-4
+type DGCPayloadCBORMapping struct {
+	ISS   string   `cbor:"1,keyasint,omitempty"`
+	EXP   uint64   `cbor:"4,keyasint,omitempty"`
+	IAT   uint64   `cbor:"6,keyasint,omitempty"`
+	HCERT HCERTMap `cbor:"-260,keyasint,omitempty"`
+}
