@@ -227,11 +227,24 @@ func (di *decoderImpl) cborUnMarshall(inflated []byte, outputToPopulate *Output)
 			return fmt.Errorf("error cbor.Unmarshal protected header hex=%s err=%s",
 				hex.EncodeToString(sCWT.Protected), err)
 		}
-		//switch protectedI.(type) {
-		//case map[interface{}]interface{}
-		//}
-
 		outputToPopulate.ProtectedHeader = protectedI
+
+		/*
+		//
+		// DEBUG dump the protected header types
+		//
+		for k, v := range protectedI {
+			fmt.Printf("**** DEBUG PROTECTED HEADER k=%d v=%v t=%T\n", k, v, v)
+		}*/
+
+		//added this as sometimes found issues and this is a way to further check
+		//fixme why not set protected header to this type?
+		var failProtected COSEHeader
+		if err := cbor.Unmarshal(sCWT.Protected, &failProtected); err != nil {
+			return fmt.Errorf("error cbor.Unmarshal protected header hex=%s err=%s",
+				hex.EncodeToString(sCWT.Protected), err)
+		}
+
 	}
 
 	//

@@ -24,7 +24,7 @@ Vaccine Details
 * [Usage](#usage)
 * [Decoding Steps](#decoding-steps)
 * [EU Documents and Code](#eu-documents-and-code)
-* [CBOR Web Token Specifications](#cbor-web-token-specifications)
+* [CBOR Specifications](#cbor-specifications)
 * [Example Verbose 1 Output](#example-verbose-1-output)
 * [Example Verbose 2 Output](#example-verbose-2-output)
 * [Development](#development)
@@ -60,8 +60,8 @@ Decoding EU Covid-19 Certificate
   Step 2 - Base45 Decoded Successfully...
   Step 3 - ZLIB Inflated Successfully...
   Step 4 - CBOR UnMarshalled CBOR Web Token (CWT) using COSE tagged message COSE Number=18 Successfully...
-    CWT CBOR UnMarshalled ProtectedHeader Successfully...
-    CWT Read UnProtectedHeader Successfully...
+    CWT CBOR UnMarshalled Protected Header Successfully...
+    CWT Read UnProtected Header Successfully...
     CWT CBOR UnMarshalled Payload Successfully...
     CWT Read COSE Signature (single signer) Successfully...
 Successfully Decoded EU Covid-19 Certificate
@@ -104,6 +104,24 @@ Testing
 - Test QR.png(s) are from `https://github.com/eu-digital-green-certificates/dgc-testdata`
 - `make test` runs local tests
 
+# Verification
+Verification covers
+1. Verifying the COSE Signature to ensure message integrity and the issuers identity.
+2. Verifying the issuer is a trusted party. 
+
+The EU nation states both (1) issue the credentials and (2) control access to the public signing keys to verify the 
+credentials, in much the same way as passports. So
+    - The "trusted issuer" is an EU nation state.
+    - Only parties blessed by the EU nation states can be "trusted verifiers", they are given access to the public signing key. 
+Although technically a verifier could hand the public key to another verifier in a trusted fashion, it was unclear to me if 
+this is some form of violation and penalty.
+
+Hence, as it is a closed shop it was not possible verify the vaccine credentials.
+
+Resources
+- This was useful in understanding more https://github.com/Digitaler-Impfnachweis/certification-apis/blob/master/dsc-update/README.md
+
+
 # EU Documents and Code
 
 1. A good starting place has links to all other technical documents
@@ -121,6 +139,8 @@ Testing
         - https://ec.europa.eu/health/sites/default/files/ehealth/docs/digital-green-certificates_v2_en.pdf
     - Volume 3 - Technical Specifications for Digital Green Certificates (Interoperable 2D Code, CBOR)
         - https://ec.europa.eu/health/sites/default/files/ehealth/docs/digital-green-certificates_v3_en.pdf
+    - Volume 4 - European Digital Green Certificate Applications
+          - https://ec.europa.eu/health/sites/default/files/ehealth/docs/digital-green-certificates_v4_en.pdf
 
 4. EU Support 
     - Certificate JSON Schema
