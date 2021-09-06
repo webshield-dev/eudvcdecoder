@@ -29,11 +29,11 @@ type Output struct {
 }
 
 //NewVerifier make a verifier
-func NewVerifier(debug bool, maxDebug bool) Verifier {
+func NewVerifier(debug bool, maxDebug bool) (Verifier, error) {
 
     decoder := helper.NewDecoder(debug, maxDebug)
 
-    return &verifierImpl{debug: debug, maxDebug: maxDebug, decoder: decoder}
+    return &verifierImpl{debug: debug, maxDebug: maxDebug, decoder: decoder}, nil
 }
 
 

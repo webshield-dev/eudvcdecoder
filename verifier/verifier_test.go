@@ -45,7 +45,8 @@ func Test_Verifier(t *testing.T) {
 		},
 	}
 
-	dgVerifier := verifier.NewVerifier(true, true)
+	dgVerifier, err := verifier.NewVerifier(true, true)
+	require.NoError(t, err)
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
