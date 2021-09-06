@@ -1,6 +1,7 @@
 package verifier_test
 
 import (
+	"context"
 	"github.com/stretchr/testify/require"
 	"github.com/webshield-dev/eudvcdecoder/verifier"
 	"testing"
@@ -51,7 +52,8 @@ func Test_Verifier(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 
-			decodeOutput, err := dgVerifier.FromFileQRCodePNG(tc.qrCodePath)
+			ctx := context.TODO()
+			decodeOutput, err := dgVerifier.FromFileQRCodePNG(ctx, tc.qrCodePath)
 			require.NoError(t, err)
 			require.NotNil(t, decodeOutput)
 		})
