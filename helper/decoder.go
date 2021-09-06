@@ -44,7 +44,13 @@ type Decoder interface {
 
 	//FromFileQRCodePNG decode starting with a QR code PNG stored in filename
 	//if an error returns what it has processed so far
+	//DOES not verify
 	FromFileQRCodePNG(filename string) (*Output, error)
+
+
+	//FromQRCodeContents decode from the QR code contents, this starts with HC1
+	//Does not verify
+	FromQRCodeContents(qrCodeContents []byte) (*Output, error)
 }
 
 //Output the results of decoding
@@ -82,26 +88,33 @@ type decoderImpl struct {
 //DOES NOT verify the signature
 func (di *decoderImpl) FromFileQRCodePNG(filename string) (*Output, error) {
 
+	//
+	//1. Read QR code image
+	//
+	qrCodeContents, err := di.readQRCode(filename)
+	if err != nil {
+		return nil, fmt.Errorf("error reading QR code file=%s err=%s", filename, err)
+	}
+
+	return di.FromQRCodeContents(qrCodeContents)
+}
+
+
+//FromQRCodeContents see interface
+func (di *decoderImpl) FromQRCodeContents(qrCodeContents []byte) (*Output, error) {
+
 	output := &Output{
 		DiagnoseLines: make([]string, 0),
 	}
 
-	//
-	//1. Read QR code image
-	//
-
-	decodedQRCode, err := di.readQRCode(filename)
-	if err != nil {
-		return nil, fmt.Errorf("error reading QR code file=%s err=%s", filename, err)
-	}
-	output.DecodedQRCode = decodedQRCode
+	output.DecodedQRCode = qrCodeContents
 
 	//
 	//2. Base64 Decode
 	//
 
 	//remove the HCx: prefix
-	base45B := decodedQRCode[4:]
+	base45B := qrCodeContents[4:]
 	base45Decoded, err := base45.DecodeString(string(base45B))
 	if err != nil {
 		return output, err
