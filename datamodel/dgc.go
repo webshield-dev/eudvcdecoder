@@ -120,6 +120,12 @@ type Vaccine struct {
 //see https://ec.europa.eu/health/sites/default/files/ehealth/docs/digital-green-certificates_v3_en.pdf
 type HCERTMap map[uint64]*DCC
 
+
+//DCC return the DCC in the map
+func (h HCERTMap) DCC() *DCC{
+	return h[HCERTMapKeyOne]
+}
+
 //HCERTMapKeyOne not sure if there are planned extensions with other keys so did not want to collapse out
 //of the model for now
 const HCERTMapKeyOne uint64 = 1

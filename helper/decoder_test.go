@@ -1,72 +1,87 @@
 package helper_test
 
 import (
-    "github.com/stretchr/testify/require"
-    "github.com/webshield-dev/eudvcdecoder/helper"
-    "testing"
+	"encoding/json"
+	"github.com/stretchr/testify/require"
+	"github.com/webshield-dev/eudvcdecoder/datamodel"
+	"github.com/webshield-dev/eudvcdecoder/helper"
+	"testing"
 )
+
+type dccTestData struct {
+	JSON   *datamodel.DCC
+	Prefix string `json:"PREFIX"`
+}
 
 func Test_Decode(t *testing.T) {
 
-    type testCase struct {
-        name string
+	type testCase struct {
+		name string
 
-        qrCodePath string
+		qrCodePath string
+		jsonPath   string
+	}
 
-        //**BASE45 Encoded compressed COSE**,
-        base45 string
-    }
+	//
+	//test data https://github.com/eu-digital-green-certificates/dgc-testdata
+	//
+	testCases := []testCase{
+		{
+			name:       "should decode a WebShield generated file",
+			qrCodePath: "../testfiles/vaccine/ws_generate_qrcode.png",
+		},
+		{
+			name:       "should support ireland vaccine qr code",
+			qrCodePath: "../testfiles/dcc-testdata/IE/png/1_qr.png",
+			jsonPath:   "../testfiles/dcc-testdata/IE/2DCode/Raw/1.json",
+		},
+		{
+			name:       "should support greece test qr code png",
+			qrCodePath: "../testfiles/dcc-testdata/GR/2DCode/png/1.png",
+			jsonPath:   "../testfiles/dcc-testdata/GR/2DCode/raw/1.json",
+		},
+		{
+			name:       "should support NL vaccine qr code png",
+			qrCodePath: "../testfiles/dcc-testdata/NL/png/041-NL-vaccination.png",
+			jsonPath:   "../testfiles/dcc-testdata/NL/2DCode/raw/041-NL-vaccination.json",
+		},
+		{
+			name:       "should support German Vaccine qr code png",
+			qrCodePath: "../testfiles/dcc-testdata/DE/2DCode/png/1.png",
+			jsonPath:   "../testfiles/dcc-testdata/DE/2DCode/raw/1.json",
+		},
+		{
+			name:       "should support austria vaccine qr code png",
+			qrCodePath: "../testfiles/dcc-testdata/AT/png/1.png",
+			jsonPath:   "../testfiles/dcc-testdata/AT/2DCode/raw/1.json",
+		},
+	}
 
-    //
-    //test data https://github.com/eu-digital-green-certificates/dgc-testdata
-    //
-    testCases := []testCase{
-        {
-            name:       "should support ireland vaccine qr code",
-            qrCodePath: "../testfiles/vaccine/ie_1_qr.png",
-            base45: "HC1:NCFE70X90T9WTWGVLKX49LDA:4NX35 CPX*42BB3XK2F3U7PF9I2F3Z:N3 Q6JC X8Y50.FK6ZK7:EDOLFVC*70B$D% D3IA4W5646946846.966KCN9E%961A6DL6FA7D46XJCCWENF6OF63W5NW6C46WJCT3E$B9WJC0FDTA6AIA%G7X+AQB9746QG7$X8SW6/TC4VCHA7LB7$471S6N-COA7X577:6 47F-CZIC6UCF%6AK4.JCP9EJY8L/5M/5546.96VF6%JCJQEK69WY8KQEPD09WEQDD+Q6TW6FA7C46TPCBEC8ZKW.C8WE7H801AY09ZJC2/D*H8Y3EN3DMPCG/DOUCNB8WY8I3DOUCCECZ CO/EZKEZ964461S6GVC*JC1A6$473W59%6D4627BPFL .4/FQQRJ/2519D+9D831UT8D4KB82JP63-G$C4/1B2SMHXDW2V:CSU6NJIO4U0-T6573C+DM-FARF9.3KMF+PVCBD$%K-4PKOE",
-        },
-        {
-            name:       "should support austria vaccine qr code",
-            qrCodePath: "../testfiles/vaccine/at_1.png",
-        },
-        {
-            name:       "should support greece vaccine qr code",
-            qrCodePath: "../testfiles/vaccine/gr_1.png",
-        },
-        {
-            name:       "should support greece test qr code",
-            qrCodePath: "../testfiles/test/gr_3.png",
-        },
-        {
-            name:       "should support NL vaccine code 1",
-            qrCodePath: "../testfiles/vaccine/072-NL-vaccination.png",
-        },
-        {
-            name:       "should support German vaccine code 1",
-            qrCodePath: "../testfiles/vaccine/dr_1.png",
-        },
-        {
-            name:       "should decode a WebShield generated file",
-            qrCodePath: "../testfiles/vaccine/ws_generate_qrcode.png",
-        },
-    }
+	vcDecoder := helper.NewDecoder(true, true)
 
-    vcDecoder := helper.NewDecoder(true, true)
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
 
-    for _, tc := range testCases {
-        t.Run(tc.name, func(t *testing.T) {
+			decodeOutput, err := vcDecoder.FromFileQRCodePNG(tc.qrCodePath)
+			require.NoError(t, err)
+			require.NotNil(t, decodeOutput)
+			require.NotEmpty(t, decodeOutput.DecodedQRCode, "should have decoded QR code")
 
-            decodeOutput, err := vcDecoder.FromFileQRCodePNG(tc.qrCodePath)
-            require.NoError(t, err)
-            require.NotNil(t, decodeOutput)
-            require.NotEmpty(t, decodeOutput.DecodedQRCode, "should have decoded QR code")
+			if tc.jsonPath != "" {
+				jsonB, err := helper.ReadData(tc.jsonPath)
+				require.NoError(t, err)
+				var testData dccTestData
+				err = json.Unmarshal(jsonB, &testData)
+				require.NoError(t, err)
+				dcc := decodeOutput.CommonPayload.HCERT.DCC()
+				require.Equal(t, *testData.JSON, *dcc)
 
+				if testData.Prefix != "" {
+                    require.Equal(t, testData.Prefix, string(decodeOutput.DecodedQRCode), "base45 decoded should match")
 
-            if tc.base45 != "" {
-                require.Equal(t, tc.base45, string(decodeOutput.DecodedQRCode), "should match")
-            }
+                }
+			}
 
-        })
-    }
+		})
+	}
 }

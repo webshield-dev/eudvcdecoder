@@ -49,12 +49,18 @@ type Decoder interface {
 
 //Output the results of decoding
 type Output struct {
+
+	//DecodedQRCode the result of reading the QR code
 	DecodedQRCode []byte
+
+	//Base45Decoded the result of base45 decoding the decoded QR code
 	Base45Decoded []byte
+
+	//Inflated the result of inflating the base45 decoded qr code
 	Inflated      []byte
 
-	//COSeCBORTag	 credential a CBOR tagged message currently can only handle COSE_Sign1 which is 18
-	// see https://datatracker.ietf.org/doc/html/rfc8152#section-2
+	//COSeCBORTag the message is encoded as a CBOR Tagged Message, this is the TAG from the message.
+	//currently only handle COSE_Sign1 which is tag 18 see https://datatracker.ietf.org/doc/html/rfc8152#section-2
 	COSeCBORTag uint64
 
 	CBORUnmarshalledI       interface{}

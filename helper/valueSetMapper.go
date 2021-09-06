@@ -2,10 +2,6 @@ package helper
 
 import (
 	"encoding/json"
-	"fmt"
-	"io/ioutil"
-	"os"
-
 	"github.com/webshield-dev/eudvcdecoder/datamodel"
 )
 
@@ -63,7 +59,7 @@ func (vsm *ValueSetMapper) DecodeVP(code string) *datamodel.ValueSetValue {
 func (vsm *ValueSetMapper) init() error {
 
 	//setup ma
-	data, err := readData(vsm.vsDataPath + maFileName)
+	data, err := ReadData(vsm.vsDataPath + maFileName)
 	if err != nil {
 		return err
 	}
@@ -74,7 +70,7 @@ func (vsm *ValueSetMapper) init() error {
 	vsm.maCodes = &maCodes
 
 	//setup mp
-	data, err = readData(vsm.vsDataPath + mpFileName)
+	data, err = ReadData(vsm.vsDataPath + mpFileName)
 	if err != nil {
 		return err
 	}
@@ -85,7 +81,7 @@ func (vsm *ValueSetMapper) init() error {
 	vsm.mpCodes = &mpCodes
 
 	//setup vp
-	data, err = readData(vsm.vsDataPath + vpFileName)
+	data, err = ReadData(vsm.vsDataPath + vpFileName)
 	if err != nil {
 		return err
 	}
@@ -99,25 +95,3 @@ func (vsm *ValueSetMapper) init() error {
 
 }
 
-func readData(path string) (data []byte, err error) {
-
-	var f *os.File
-	f, err = os.Open(os.ExpandEnv(path))
-	if err != nil {
-		return nil, fmt.Errorf("error reading %s err=%s", path, err)
-	}
-
-	defer func() {
-		err1 := f.Close()
-		if err == nil {
-			err = err1
-		}
-	}()
-
-	data, err = ioutil.ReadAll(f)
-	if err != nil {
-		return nil, err
-	}
-
-	return data, err
-}
