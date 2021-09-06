@@ -4,6 +4,7 @@ go 1.14
 
 require (
 	github.com/dasio/base45 v1.0.1
+	github.com/eu-digital-green-certificates/dgc-testdata v0.0.0-20210826094653-2bf3a85ed180 // indirect
 	github.com/fxamacker/cbor/v2 v2.3.0
 	github.com/makiuchi-d/gozxing v0.0.2
 	github.com/securego/gosec v0.0.0-20200401082031-e946c8c39989 // indirect

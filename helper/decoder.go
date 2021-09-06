@@ -49,40 +49,28 @@ type Decoder interface {
 
 //Output the results of decoding
 type Output struct {
+
+	//DecodedQRCode the result of reading the QR code
 	DecodedQRCode []byte
+
+	//Base45Decoded the result of base45 decoding the decoded QR code
 	Base45Decoded []byte
+
+	//Inflated the result of inflating the base45 decoded qr code
 	Inflated      []byte
 
-	//COSeCBORTag	 credential a CBOR tagged message currently can only handle COSE_Sign1 which is 18
-	// see https://datatracker.ietf.org/doc/html/rfc8152#section-2
+	//COSeCBORTag the message is encoded as a CBOR Tagged Message, this is the TAG from the message.
+	//currently only handle COSE_Sign1 which is tag 18 see https://datatracker.ietf.org/doc/html/rfc8152#section-2
 	COSeCBORTag uint64
 
 	CBORUnmarshalledI       interface{}
 	CBORUnmarshalledPayload []byte //cbor encoded payload
 	PayloadI                interface{}
-	ProtectedHeader         map[int]interface{} // from spec
-	UnProtectedHeader       *COSEHeader
+	ProtectedHeader         map[int]interface{} // did not make a COSEHeader as wanted to see what else is inside
+	UnProtectedHeader       *datamodel.COSEHeader
 	COSESignature           []byte
 	CommonPayload           *datamodel.DGCCommonPayload
 	DiagnoseLines           []string //if trying to learn display here
-}
-
-//COSEHeader only contains what is specified in the vaccine credential
-//https://ec.europa.eu/health/sites/default/files/ehealth/docs/digital-green-certificates_v3_en.pdf
-// see CBOR https://datatracker.ietf.org/doc/html/rfc8152#section-3.1 for where 1 and 4 come from
-//  Generic_Headers = (
-//       ? 1 => int / tstr,  ; algorithm identifier
-//       ? 2 => [+label],    ; criticality
-//       ? 3 => tstr / int,  ; content type
-//       ? 4 => bstr,        ; key identifier
-//       ? 5 => bstr,        ; IV
-//       ? 6 => bstr,        ; Partial IV
-//       ? 7 => COSE_Signature / [+COSE_Signature] ; Counter signature
-//
-type COSEHeader struct {
-	//Alg can be an int or a utf-8 string so make an interface
-	Alg interface{} `cbor:"1,keyasint,omitempty"` // this mapping is incorrect as can be utf-8 string or an int
-	Kid []byte      `cbor:"4,keyasint,omitempty"`
 }
 
 type decoderImpl struct {
@@ -90,6 +78,8 @@ type decoderImpl struct {
 	maxDebug bool
 }
 
+//FromFileQRCodePNG reads file that contains the QR code PNG and decodes to get the output,
+//DOES NOT verify the signature
 func (di *decoderImpl) FromFileQRCodePNG(filename string) (*Output, error) {
 
 	output := &Output{
@@ -186,33 +176,7 @@ func (di *decoderImpl) cborUnMarshall(inflated []byte, outputToPopulate *Output)
 		return fmt.Errorf("error CBOR tagged message number must be 18 got=%d", taggedMessage.Number)
 	}
 
-	//
-	// Unpack using some structs
-	//
-
-	type signedCWT struct {
-		_ struct{} `cbor:",toarray"`
-		// this seems to be cbor encoded if make a coseHeader then fails with
-		// cannot unmarshal byte string into Go struct field encoding_test.signedCWT.Protected of type encoding_test.coseHeader
-		// when cbor.Unmarshal the whole web token
-		// The set of protected headers wrapped in a byte string - see https://datatracker.ietf.org/doc/html/rfc8152#section-2
-		// needs to be CBOR decoded
-		//CBOR encoding of the map of protected headers, that is wrapped in a byte string
-		//see https://datatracker.ietf.org/doc/html/rfc8152#section-3 and section-2
-		Protected []byte // this seems to be cbor encoded
-
-		//  Set of unprotected header  parameters as a map
-		// see https://datatracker.ietf.org/doc/html/rfc8152#section-3
-		Unprotected COSEHeader
-
-		//The CBOR encoded content as a byte string, needs to be CBOR decoded
-		Payload []byte
-
-		//The COSE signature - is a singe signer
-		Signature []byte
-	}
-
-	var sCWT signedCWT
+	var sCWT datamodel.SignedCWT
 	if err := cbor.Unmarshal(inflated, &sCWT); err != nil {
 		return fmt.Errorf("error unmarshalling inflated CWT into an CWT struct err=%s", err)
 	}
@@ -241,7 +205,7 @@ func (di *decoderImpl) cborUnMarshall(inflated []byte, outputToPopulate *Output)
 
 		//added this as sometimes found issues and this is a way to further check
 		//fixme why not set protected header to this type?
-		var failProtected COSEHeader
+		var failProtected datamodel.COSEHeader
 		if err := cbor.Unmarshal(sCWT.Protected, &failProtected); err != nil {
 			return fmt.Errorf("error cbor.Unmarshal protected header hex=%s err=%s",
 				hex.EncodeToString(sCWT.Protected), err)
@@ -259,19 +223,8 @@ func (di *decoderImpl) cborUnMarshall(inflated []byte, outputToPopulate *Output)
 	}
 	outputToPopulate.PayloadI = payloadI
 
-	//
-	// CBOR unmarshall the Payload into the common payload CBOR mapping as defined on section 2.6.3 in
-	// https://ec.europa.eu/health/sites/default/files/ehealth/docs/digital-green-certificates_v3_en.pdf
-	// also see CWT for CBOR mapping of iss, exp, iat
-	// https://datatracker.ietf.org/doc/html/rfc8392#section-4
-	type commonPayloadCBORMapping struct {
-		ISS   string             `cbor:"1,keyasint,omitempty"`
-		EXP   uint64             `cbor:"4,keyasint,omitempty"`
-		IAT   uint64             `cbor:"6,keyasint,omitempty"`
-		HCERT datamodel.HCERTMap `cbor:"-260,keyasint,omitempty"`
-	}
 
-	var p commonPayloadCBORMapping
+	var p datamodel.DGCPayloadCBORMapping
 	if err := cbor.Unmarshal(sCWT.Payload, &p); err != nil {
 		//debug process to understand more
 		outputToPopulate.DiagnoseLines = DebugCBORCommonPayload(sCWT.Payload)
@@ -279,12 +232,10 @@ func (di *decoderImpl) cborUnMarshall(inflated []byte, outputToPopulate *Output)
 		return fmt.Errorf("error cbor unmarshalling common payload run with verbose to see more err=%s", err)
 	}
 
-	//create the datamodel version of common payload, just did not want to expose CBOR mapping outside of here
-	outputToPopulate.CommonPayload = &datamodel.DGCCommonPayload{
-		ISS:   p.ISS,
-		IAT:   p.IAT,
-		EXP:   p.EXP,
-		HCERT: p.HCERT}
+	//create the datamodel version of common payload
+	outputToPopulate.CommonPayload = &datamodel.DGCCommonPayload{}
+	outputToPopulate.CommonPayload.Populate(&p)
+
 
 	//
 	// Add Signature not used for now
@@ -292,68 +243,6 @@ func (di *decoderImpl) cborUnMarshall(inflated []byte, outputToPopulate *Output)
 	outputToPopulate.COSESignature = sCWT.Signature
 
 	return nil
-
-}
-
-func (di *decoderImpl) debugCommonPayload(payload []byte) []string {
-
-	rl := make([]string, 0)
-
-	rl = append(rl, fmt.Sprintf("ERROR cbor unmarshalling CommonPayload HCERT diagnosing"))
-
-	//if an error using the known types then use an interface for HCERT so can process in debug
-	type resilientCommonPayloadCBORMapping struct {
-		ISS   string      `cbor:"1,keyasint,omitempty"`
-		EXP   uint64      `cbor:"4,keyasint,omitempty"`
-		IAT   uint64      `cbor:"6,keyasint,omitempty"`
-		HCERT interface{} `cbor:"-260,keyasint,omitempty"`
-	}
-
-	var cp resilientCommonPayloadCBORMapping
-	if err := cbor.Unmarshal(payload, &cp); err != nil {
-		return append(rl, fmt.Sprintf("error debugging cbor payload unmarshall error err=%s", err))
-	}
-
-	switch cp.HCERT.(type) {
-
-	case map[interface{}]interface{}:
-		{
-			hcertM := cp.HCERT.(map[interface{}]interface{})
-			for k, v := range hcertM {
-				switch k.(type) {
-				case uint64:
-					{
-						ki := k.(uint64)
-						if ki == 1 {
-							//can process
-							arls := AnalyseMap(v, "  ")
-							for _, arl := range arls {
-								rl = append(rl, arl)
-							}
-
-						} else {
-							rl = append(rl, fmt.Sprintf("ERROR HCERT.map[key] expected=1 got=%d", ki))
-						}
-
-					}
-
-				default:
-					{
-
-					}
-					rl = append(rl, fmt.Sprintf("ERROR HCERT.map[key] expected=uint64 got=%T", k))
-				}
-			}
-		}
-
-	default:
-		{
-			rl = append(rl, fmt.Sprintf("HCERT expected map[interface{}]interface{} got=%T", cp.HCERT))
-		}
-
-	}
-
-	return rl
 
 }
 
