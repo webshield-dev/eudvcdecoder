@@ -47,6 +47,9 @@ type Decoder interface {
 	//DOES not verify
 	FromFileQRCodePNG(filename string) (*Output, error)
 
+	//IsDGCFromQRCodeContents returns true if the card is a digital green card, does no processing
+	//looks for HCI code
+	IsDGCFromQRCodeContents(qrCodeContents []byte) bool
 
 	//FromQRCodeContents decode from the QR code contents, this starts with HC1
 	//Does not verify
@@ -63,7 +66,7 @@ type Output struct {
 	Base45Decoded []byte
 
 	//Inflated the result of inflating the base45 decoded qr code
-	Inflated      []byte
+	Inflated []byte
 
 	//COSeCBORTag the message is encoded as a CBOR Tagged Message, this is the TAG from the message.
 	//currently only handle COSE_Sign1 which is tag 18 see https://datatracker.ietf.org/doc/html/rfc8152#section-2
@@ -99,6 +102,13 @@ func (di *decoderImpl) FromFileQRCodePNG(filename string) (*Output, error) {
 	return di.FromQRCodeContents(qrCodeContents)
 }
 
+//IsDGCFromQRCodeContents returns true if the card is a digital green card, does no processing
+//looks for HC1 code
+func (di *decoderImpl) IsDGCFromQRCodeContents(qrCodeContents []byte) bool {
+
+	prefix := qrCodeContents[0:3]
+	return string(prefix) == datamodel.QRCodePrefix
+}
 
 //FromQRCodeContents see interface
 func (di *decoderImpl) FromQRCodeContents(qrCodeContents []byte) (*Output, error) {
@@ -209,12 +219,12 @@ func (di *decoderImpl) cborUnMarshall(inflated []byte, outputToPopulate *Output)
 		outputToPopulate.ProtectedHeader = protectedI
 
 		/*
-		//
-		// DEBUG dump the protected header types
-		//
-		for k, v := range protectedI {
-			fmt.Printf("**** DEBUG PROTECTED HEADER k=%d v=%v t=%T\n", k, v, v)
-		}*/
+			//
+			// DEBUG dump the protected header types
+			//
+			for k, v := range protectedI {
+				fmt.Printf("**** DEBUG PROTECTED HEADER k=%d v=%v t=%T\n", k, v, v)
+			}*/
 
 		//added this as sometimes found issues and this is a way to further check
 		//fixme why not set protected header to this type?
@@ -236,7 +246,6 @@ func (di *decoderImpl) cborUnMarshall(inflated []byte, outputToPopulate *Output)
 	}
 	outputToPopulate.PayloadI = payloadI
 
-
 	var p datamodel.DGCPayloadCBORMapping
 	if err := cbor.Unmarshal(sCWT.Payload, &p); err != nil {
 		//debug process to understand more
@@ -248,7 +257,6 @@ func (di *decoderImpl) cborUnMarshall(inflated []byte, outputToPopulate *Output)
 	//create the datamodel version of common payload
 	outputToPopulate.CommonPayload = &datamodel.DGCCommonPayload{}
 	outputToPopulate.CommonPayload.Populate(&p)
-
 
 	//
 	// Add Signature not used for now

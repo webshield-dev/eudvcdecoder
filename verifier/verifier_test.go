@@ -53,9 +53,10 @@ func Test_Verifier(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 
 			ctx := context.TODO()
-			decodeOutput, err := dgVerifier.FromFileQRCodePNG(ctx, tc.qrCodePath)
+			verifierOutput, err := dgVerifier.FromFileQRCodePNG(ctx, tc.qrCodePath)
 			require.NoError(t, err)
-			require.NotNil(t, decodeOutput)
+			require.NotNil(t, verifierOutput)
+			require.True(t, dgVerifier.IsDGCFromQRCodeContents(verifierOutput.DecodeOutput.DecodedQRCode), "should be a DGC")
 		})
 	}
 }
