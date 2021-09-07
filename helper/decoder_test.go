@@ -67,6 +67,8 @@ func Test_Decode(t *testing.T) {
 			require.NotNil(t, decodeOutput)
 			require.NotEmpty(t, decodeOutput.DecodedQRCode, "should have decoded QR code")
 
+			require.True(t, vcDecoder.IsDGCFromQRCodeContents(decodeOutput.DecodedQRCode), "should be a DGC")
+
 			if tc.jsonPath != "" {
 				jsonB, err := helper.ReadData(tc.jsonPath)
 				require.NoError(t, err)

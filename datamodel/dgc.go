@@ -1,5 +1,9 @@
 package datamodel
 
+
+//QRCodePrefix the DGC is prefixed with this before converting into a QR code PNG
+const QRCodePrefix = "HC1"
+
 //DCC (Digital Covid Certificate) JSON schema
 // see
 //  - https://github.com/ehn-dcc-development/ehn-dcc-schema
