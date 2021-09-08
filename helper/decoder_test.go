@@ -75,7 +75,7 @@ func Test_Decode(t *testing.T) {
 				var testData dccTestData
 				err = json.Unmarshal(jsonB, &testData)
 				require.NoError(t, err)
-				dcc := decodeOutput.CommonPayload.HCERT.DCC()
+				dcc := decodeOutput.DCC()
 				require.Equal(t, *testData.JSON, *dcc)
 
 				if testData.Prefix != "" {
