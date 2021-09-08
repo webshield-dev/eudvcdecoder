@@ -82,6 +82,16 @@ type Output struct {
 	DiagnoseLines           []string //if trying to learn display here
 }
 
+
+//DCC return the (Digital Covid Certificate) inside the record, if none returns nil
+func (o *Output) DCC() *datamodel.DCC {
+	if o.CommonPayload != nil {
+		return o.CommonPayload.HCERT.DCC()
+	}
+
+	return nil
+}
+
 type decoderImpl struct {
 	debug    bool
 	maxDebug bool

@@ -3,6 +3,7 @@ package verifier
 import (
 	"context"
 	"fmt"
+	eudvcdatamodel "github.com/webshield-dev/eudvcdecoder/datamodel"
 	"github.com/webshield-dev/eudvcdecoder/helper"
 )
 
@@ -15,14 +16,14 @@ type Verifier interface {
 
 	//FromFileQRCodePNG verifies a EUDC from its QR code PNG stored in filename
 	//if an error returns what it has processed so far, incase want to display
-	FromFileQRCodePNG(ctx context.Context, filename string) (*Output, error)
+	FromFileQRCodePNG(ctx context.Context, filename string, opts *VerifyOptions) (*Output, error)
 
 	//IsDGCFromQRCodeContents returns true if the card is a digital green card, does no processing
 	//looks for HCI code
 	IsDGCFromQRCodeContents(qrCodeContents []byte) bool
 
 	//FromQRCodeContents decode from the QR code contents, this starts with HC1
-	FromQRCodeContents(ctx context.Context, qrCodeContents []byte) (*Output, error)
+	FromQRCodeContents(ctx context.Context, qrCodeContents []byte, opts *VerifyOptions) (*Output, error)
 }
 
 //Output the result of a verifier
@@ -32,6 +33,21 @@ type Output struct {
 
 	//VerifiedSignature true if the signature has been verified
 	VerifiedSignature bool
+}
+
+//DCC return the (Digital Covid Certificate) inside the record, if none returns nil
+func (o *Output) DCC() *eudvcdatamodel.DCC {
+	if o.DecodeOutput != nil {
+		return o.DecodeOutput.DCC()
+	}
+
+	return nil
+}
+
+//VerifyOptions options to verify
+type VerifyOptions struct {
+	//UnSafe if set does not verify the signature
+	UnSafe bool
 }
 
 //NewVerifier make a verifier
@@ -48,7 +64,7 @@ type verifierImpl struct {
 	decoder  helper.Decoder
 }
 
-func (v *verifierImpl) FromFileQRCodePNG(ctx context.Context, filename string) (*Output, error) {
+func (v *verifierImpl) FromFileQRCodePNG(ctx context.Context, filename string, opts *VerifyOptions) (*Output, error) {
 
 	verifyOutput := &Output{}
 
@@ -65,11 +81,11 @@ func (v *verifierImpl) FromFileQRCodePNG(ctx context.Context, filename string) (
 	return verifyOutput, nil
 }
 
-func (v *verifierImpl)  IsDGCFromQRCodeContents(qrCodeContents []byte) bool {
-    return v.decoder.IsDGCFromQRCodeContents(qrCodeContents)
+func (v *verifierImpl) IsDGCFromQRCodeContents(qrCodeContents []byte) bool {
+	return v.decoder.IsDGCFromQRCodeContents(qrCodeContents)
 }
 
-func (v *verifierImpl) FromQRCodeContents(ctx context.Context, qrCodeContents []byte) (*Output, error) {
+func (v *verifierImpl) FromQRCodeContents(ctx context.Context, qrCodeContents []byte, opts *VerifyOptions) (*Output, error) {
 
 	verifyOutput := &Output{}
 

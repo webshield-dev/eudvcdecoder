@@ -233,7 +233,7 @@ func displaySummary(vsMapper *helper.ValueSetMapper, output *helper.Output) {
 
 	fmt.Printf("")
 
-	fullName := cert.Name.GN + " " + cert.Name.FN
+	fullName := cert.Name.FullName()
 
 	fmt.Printf("Name:%s\n", fullName)
 	fmt.Printf("DOB :%s\n", cert.DOB)

@@ -41,15 +41,15 @@ The CLI flags are
 2. `-verbose <level>` where level is 0 -> 9, default is zero
 
 Using the executables macOS (./bin/decoder.mac) or Linux (./bin/decoder.linux)
-- `./bin/decoder.mac -qrfile ./testfiles/vaccine/dr_1.png`     <-- Mac no verbose 
-- `./bin/decoder.linux -qrfile ./testfiles/vaccine/dr_1.png`   <-- Linux no verbose
+- `./bin/decoder.mac -qrfile ./testfiles/dcc-testdata/DE/2DCode/png/1.png`     <-- Mac no verbose 
+- `./bin/decoder.linux -qrfile ./testfiles/dcc-testdata/DE/2DCode/png/1.png`   <-- Linux no verbose
 
 verbose
-- `./bin/decoder.mac ./testfiles/vaccine/dr_1.png -verbose 1` <-- displays  protected header and common payload
-- `./bin/decoder.mac . -qrfile ./testfiles/vaccine/dr_1.png -verbose 2` <-- displays decoding step details
+- `./bin/decoder.mac ./testfiles/dcc-testdata/DE/2DCode/png/1.png -verbose 1` <-- displays  protected header and common payload
+- `./bin/decoder.mac . -qrfile ./testfiles/dcc-testdata/DE/2DCode/png/1.png -verbose 2` <-- displays decoding step details
 
 Using Go run (all platforms)
-- `go run . -qrfile ./testfiles/vaccine/dr_1.png`
+- `go run . -qrfile ./testfiles/dcc-testdata/DE/2DCode/png/1.png`
 
 Example output:
 ```
@@ -165,7 +165,7 @@ Used the following CBOR related specifications to unpack the credential
     
 # Example Verbose 1 Output
 ```
-go run . -qrfile ./testfiles/vaccine/dr_1.png -verbose 1
+go run . -qrfile ./testfiles/dcc-testdata/DE/2DCode/png/1.png -verbose 1
 Decoding EU Covid-19 Certificate
   qrCodefile=./testfiles/vaccine/dr_1.png  ValueSetPath=./valuesetdata  verbose=1
   Step 1 - Read QR Code PNG ./testfiles/vaccine/dr_1.png Successfully...
@@ -232,7 +232,7 @@ Vaccine Details
 
 # Example Verbose 2 Output
 ```
-go run . -qrfile ./testfiles/vaccine/dr_1.png -verbose 2
+go run . -qrfile ./testfiles/dcc-testdata/DE/2DCode/png/1.png -verbose 2
 Decoding EU Covid Certificate
   qrCodefile=./testfiles/vaccine/dr_1.png  ValueSetPath=./valuesetdata  verbose=2
   Step 1 - Read QR Code PNG ./testfiles/vaccine/dr_1.png Successfully...

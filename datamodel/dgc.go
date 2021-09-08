@@ -56,6 +56,11 @@ type Name struct {
 	GNT string `json:"gnt,omitempty"`
 }
 
+//FullName returns a fullName that concatenates the given and family values
+func(n *Name) FullName() string {
+	return n.GN + " " + n.FN
+}
+
 //Vaccine Vaccination group, if present, MUST contain exactly 1 (one) entry describing exactly one vaccination
 //event. All elements of the vaccination group are mandatory, empty values are not supported.
 type Vaccine struct {
