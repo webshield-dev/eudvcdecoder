@@ -18,6 +18,11 @@ type Verifier interface {
 	//if an error returns what it has processed so far, incase want to display
 	FromFileQRCodePNG(ctx context.Context, filename string, opts *VerifyOptions) (*Output, error)
 
+	//FromQRCodePNGBytes decode starting with a QR code PNG represented as bytes
+	//first makes a local PNG image and the decodes to get the HC1: representation
+	//if an error returns what it has processed so far
+	FromQRCodePNGBytes(ctx context.Context, pngB []byte, opts *VerifyOptions) (*Output, error)
+
 	//IsDGCFromQRCodeContents returns true if the card is a digital green card, does no processing
 	//looks for HCI code
 	IsDGCFromQRCodeContents(qrCodeContents []byte) bool
@@ -70,6 +75,23 @@ func (v *verifierImpl) FromFileQRCodePNG(ctx context.Context, filename string, o
 
 	//first decode
 	decodeOutput, err := v.decoder.FromFileQRCodePNG(filename)
+	if err != nil {
+		verifyOutput.DecodeOutput = decodeOutput //some decode stages may have passed
+		return verifyOutput, fmt.Errorf("error decoding the digital credential err=%s", err)
+	}
+	verifyOutput.DecodeOutput = decodeOutput
+
+	v.verify(verifyOutput)
+
+	return verifyOutput, nil
+}
+
+func (v *verifierImpl) FromQRCodePNGBytes(ctx context.Context, pngB []byte, opts *VerifyOptions) (*Output, error) {
+
+	verifyOutput := &Output{}
+
+	//first decode
+	decodeOutput, err := v.decoder.FromQRCodePNGBytes(pngB)
 	if err != nil {
 		verifyOutput.DecodeOutput = decodeOutput //some decode stages may have passed
 		return verifyOutput, fmt.Errorf("error decoding the digital credential err=%s", err)
