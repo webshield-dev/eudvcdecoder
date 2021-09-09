@@ -67,6 +67,9 @@ type Decoder interface {
 //Output the results of decoding
 type Output struct {
 
+	//Decoded set to true if the decoding completed ok without any issues
+	Decoded bool
+
 	//DecodedQRCode the result of reading the QR code
 	DecodedQRCode []byte
 
@@ -86,7 +89,11 @@ type Output struct {
 	ProtectedHeader         map[int]interface{} // did not make a COSEHeader as wanted to see what else is inside
 	UnProtectedHeader       *datamodel.COSEHeader
 	COSESignature           []byte
+
+	//CommonPayload the common payload within the credential
 	CommonPayload           *datamodel.DGCCommonPayload
+
+	//DiagnoseLines the decoding is multi-step if run into issues then diagnostic info is added here
 	DiagnoseLines           []string //if trying to learn display here
 }
 
@@ -201,6 +208,9 @@ func (di *decoderImpl) FromQRCodeContents(qrCodeContents []byte) (*Output, error
 	if err := di.cborUnMarshall(inflated.Bytes(), output); err != nil {
 		return output, err
 	}
+
+	//successfully decoded the vaccine credential
+	output.Decoded = true
 
 	return output, nil
 
