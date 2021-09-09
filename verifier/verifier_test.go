@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/stretchr/testify/require"
 	"github.com/webshield-dev/eudvcdecoder/verifier"
+	"io/ioutil"
 	"testing"
 )
 
@@ -57,6 +58,13 @@ func Test_Verifier(t *testing.T) {
 			require.NoError(t, err)
 			require.NotNil(t, verifierOutput)
 			require.True(t, dgVerifier.IsDGCFromQRCodeContents(verifierOutput.DecodeOutput.DecodedQRCode), "should be a DGC")
+
+			//from bytes
+			pngB, err := ioutil.ReadFile(tc.qrCodePath)
+			require.NoError(t, err)
+			verifierOutput, err = dgVerifier.FromQRCodePNGBytes(ctx, pngB, nil)
+			require.NoError(t, err)
+			require.NotNil(t, verifierOutput)
 		})
 	}
 }
