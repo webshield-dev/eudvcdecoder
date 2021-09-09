@@ -80,7 +80,12 @@ func (v *verifierImpl) FromFileQRCodePNG(ctx context.Context, filename string, o
 		return verifyOutput, fmt.Errorf("error decoding the digital credential err=%s", err)
 	}
 	verifyOutput.DecodeOutput = decodeOutput
+	if !decodeOutput.Decoded {
+		//if did not manage to decode then no point in trying to verify
+		return verifyOutput, nil
+	}
 
+	//verify signature
 	v.verify(verifyOutput)
 
 	return verifyOutput, nil

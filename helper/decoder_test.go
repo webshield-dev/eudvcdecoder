@@ -65,6 +65,7 @@ func Test_Decode(t *testing.T) {
 			decodeOutput, err := vcDecoder.FromFileQRCodePNG(tc.qrCodePath)
 			require.NoError(t, err)
 			require.NotNil(t, decodeOutput)
+			require.True(t, decodeOutput.Decoded, "should have successfully decoded data")
 			require.NotEmpty(t, decodeOutput.DecodedQRCode, "should have decoded QR code")
 
 			require.True(t, vcDecoder.IsDGCFromQRCodeContents(decodeOutput.DecodedQRCode), "should be a DGC")
