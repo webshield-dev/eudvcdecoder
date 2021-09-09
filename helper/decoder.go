@@ -9,6 +9,7 @@ import (
 	"image"
 	"image/png"
 	"io"
+	"io/ioutil"
 	"os"
 
 	"github.com/fxamacker/cbor/v2"
@@ -46,6 +47,13 @@ type Decoder interface {
 	//if an error returns what it has processed so far
 	//DOES not verify
 	FromFileQRCodePNG(filename string) (*Output, error)
+
+	//FromQRCodePNGBytes decode starting with a QR code PNG represented as bytes
+	//first makes a local PNG image and the decodes to get the HC1: representation
+	//if an error returns what it has processed so far
+	//DOES not verify
+	FromQRCodePNGBytes(pngB []byte) (*Output, error)
+
 
 	//IsDGCFromQRCodeContents returns true if the card is a digital green card, does no processing
 	//looks for HCI code
@@ -101,15 +109,42 @@ type decoderImpl struct {
 //DOES NOT verify the signature
 func (di *decoderImpl) FromFileQRCodePNG(filename string) (*Output, error) {
 
-	//
-	//1. Read QR code image
-	//
-	qrCodeContents, err := di.readQRCode(filename)
+	pngBytes, err := ioutil.ReadFile(os.ExpandEnv(filename))
 	if err != nil {
 		return nil, fmt.Errorf("error reading QR code file=%s err=%s", filename, err)
 	}
 
-	return di.FromQRCodeContents(qrCodeContents)
+	return di.FromQRCodePNGBytes(pngBytes)
+}
+
+func (di *decoderImpl) FromQRCodePNGBytes(pngB []byte) (*Output, error) {
+
+	reader := bytes.NewReader(pngB)
+
+	var img image.Image
+	img, err := png.Decode(reader)
+	if err != nil {
+		return nil, err
+	}
+
+	// prepare BinaryBitmap
+	var bmp *gozxing.BinaryBitmap
+	bmp, err = gozxing.NewBinaryBitmapFromImage(img)
+	if err != nil {
+		return nil, err
+	}
+
+	// decode image
+	var result *gozxing.Result
+	qrReader := qrcode.NewQRCodeReader()
+	result, err = qrReader.Decode(bmp, nil)
+	if err != nil {
+		return nil, err
+	}
+
+
+	return di.FromQRCodeContents([]byte(result.String()))
+
 }
 
 //IsDGCFromQRCodeContents returns true if the card is a digital green card, does no processing
@@ -274,45 +309,5 @@ func (di *decoderImpl) cborUnMarshall(inflated []byte, outputToPopulate *Output)
 	outputToPopulate.COSESignature = sCWT.Signature
 
 	return nil
-
-}
-
-func (di *decoderImpl) readQRCode(filename string) (decodedQRCode []byte, err error) {
-
-	// open and decode image file
-	var file *os.File
-	file, err = os.Open(os.ExpandEnv(filename))
-	if err != nil {
-		return nil, err
-	}
-	defer func() {
-		err1 := file.Close()
-		if err == nil {
-			err = err1
-		}
-	}()
-
-	var img image.Image
-	img, err = png.Decode(file)
-	if err != nil {
-		return nil, err
-	}
-
-	// prepare BinaryBitmap
-	var bmp *gozxing.BinaryBitmap
-	bmp, err = gozxing.NewBinaryBitmapFromImage(img)
-	if err != nil {
-		return nil, err
-	}
-
-	// decode image
-	var result *gozxing.Result
-	qrReader := qrcode.NewQRCodeReader()
-	result, err = qrReader.Decode(bmp, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return []byte(result.String()), err
 
 }
