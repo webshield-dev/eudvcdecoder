@@ -185,7 +185,7 @@ func displayResults(vsMapper *helper.ValueSetMapper, output *helper.Output,
 		//
 		fmt.Printf("Successfully Decoded EU Covid-19 Certificate\n")
 
-		if lowVerbose {
+		if lowVerbose || maxVerbose {
 			fmt.Printf("\n**** EU Covid-19 Certificate Details **** \n")
 
 			//
