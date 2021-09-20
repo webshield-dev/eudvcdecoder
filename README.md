@@ -22,7 +22,7 @@ The **decoding steps** are as follows:
 7. NOT yet implemented check the COSE signature by getting signing key from issuing State and using it to check the CBOR signature.
 
 ## Decode using the SafetyPASS verify web page
-The [web page](https://safetypass.sandbox.webshield.io/shc/web/v1/public/smart-health-card/upload) decodes an EU Digital 
+This [web page](https://safetypass.sandbox.webshield.io/shc/web/v1/public/smart-health-card/upload) decodes an EU Digital 
 COVID-19 Certificate and displays it contents. It **does not** save the data, or verify the signature (future)
 
 The overview page
@@ -32,7 +32,7 @@ The show details section
 ![details page](https://raw.githubusercontent.com/webshield-dev/eudvcdecoder/main/images/details-1.png)
 ![details page](https://raw.githubusercontent.com/webshield-dev/eudvcdecoder/main/images/details-2.png)
 
-The credential can be provided as follows
+The upload page (it stores no data)
 ![upload page](https://raw.githubusercontent.com/webshield-dev/eudvcdecoder/main/images/landing-page.png)
 
 ## Decode using the CLI tool
