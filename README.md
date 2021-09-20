@@ -2,7 +2,7 @@
 This repo provides tools to decode an EU Digital COVID-19 Certificate (also referred to as Digital Green Certificates)
 * [Decode using a public web page](#decode-using-the-Safetypass-verify-web-page)
 * [Decode using a CLI tool on your local machine](#decode-using-the-CLI-tool)
-* [EU DHC and CBOR Reference Documents](#reference-documents)
+* [EU DGC and CBOR Reference Documents](#reference-documents)
 * [Appendix CLI Verbose Output](#appendix-CLI-verbose-output)
 
 ## Decoding Steps
