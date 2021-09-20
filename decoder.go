@@ -91,7 +91,7 @@ func main() {
 
 
 
-	decodeOutput, err := dc.FromFileQRCodePNG(cliQRFilename)
+	decodeOutput, err := dc.FromFileQRCode(cliQRFilename)
 	if err != nil {
 		_ = displayResults(vsMapper, decodeOutput, lowVerbose, maxVerbose)
 		fmt.Printf("ERROR processing certficate err=%s\n", err)
