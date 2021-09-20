@@ -1,9 +1,26 @@
 # Overview
 An EU Digital COVID-19 Certificate (also referred to as Digital Green Certificates) can be decoded by
-* [Upload to a web page](#decode-using-the-SafetyPASS-verify-web-page)
-* [Using a CLI tool on local machine](#decode-using-the-CLI-tool)
+* [Decode using a web page](#decode-using-the-Safetypass-verify-web-page)
+* [Decode using a CLI tool on local machine](#decode-using-the-CLI-tool)
+* [Reference Documents](#reference-documents)
+* [Appendix CLI Verbose Output](#appendix-CLI-verbose-output)
 
-## Decode using the SafetyPASS web page
+The **decoding steps** are as follows:
+1. Read the QR code to get the QR alphanumeric code. This is prefixed with "HC1:6BF...."
+2. Base45 decode the part after "HC1:" to get the ZLIB compressed certificate
+3. ZLIB inflate the compressed certificate to get a COSE tagged message (CBOR Object Signing and Encryption (COSE))
+4. CBOR decode the COSE tagged message that contains
+    - a Number key with value of 18 indicating that a "Cose_Sign1" object
+    - a Content key with an array of containing the CBOR Web Token parts
+        - protected header - cbor encoded []byte
+        - unprotected header - map
+        - payload  - cbor encoded []byte
+        - digital signature (a signed sha256 digest) - []byte
+5. CBOR decode the protected header to get the Signing Algorithm and KeyID
+6. CBOR decode the payload to get the issuer, iat, exp, subject information, and vaccination information
+7. NOT yet implemented check the COSE signature by getting signing key from issuing State and using it to check the CBOR signature.
+
+## Decode using the SafetyPASS verify web page
 The [web page](https://safetypass.sandbox.webshield.io/shc/web/v1/public/smart-health-card/upload) decodes an EU Digital 
 COVID-19 Certificate and displays it contents.
 
@@ -70,13 +87,13 @@ Vaccine Details
 * [Example Verbose 2 Output](#example-verbose-2-output)
 * [Development](#development)
 
-# Setup
+## Setup
 1. Git Clone/Fork this repo
 2. The repo includes a **macOS binary** and a **linux binary**, otherwise you need to install Go.
    - If using go run then Install Go (1.14 or higher) see https://golang.org/doc/install
 
 
-# Usage
+## Usage
 The CLI flags are
 1. `-qrfile <value>` the QRcode.png
 2. `-verbose <level>` where level is 0 -> 9, default is zero
@@ -121,31 +138,11 @@ Vaccine Details
   ID:                 URN:UVCI:01DE/IZ12345A/5CWLU12RNOB9RXSEOP6FG8#W
 ```
 
-# Decoding Steps
-The **decoding steps** are as follows:
-1. Read the QR code (.png) to get the QR alphanumeric code. This is prefixed with "HC1:6BF...." so know a digital certificate
-2. Base45 decode the part after "HC1:" to get the ZLIB compressed certificate
-3. ZLIB inflate the compressed certificate to get a COSE tagged message (CBOR Object Signing and Encryption (COSE))
-4. CBOR decode the COSE tagged message that contains
-    - a Number key with value of 18 indicating that a "Cose_Sign1" object
-    - a Content key with an array of containing the CBOR Web Token parts
-        - protected header - cbor encoded []byte
-        - unprotected header - map
-        - payload  - cbor encoded []byte
-        - digital signature (a signed sha256 digest) - []byte
-5. CBOR decode the protected header to get the Signing Algorithm and KeyID
-6. CBOR decode the payload to get the issuer, iat, exp, subject information, and vaccination information
-7. NOT implemented check the COSE signature by getting signing key from issuing State and using it to check the CBOR signature.
-
-Limitations
-- Only pretty prints vaccine credentials not test or recovery, to see later use verbose mode
-- Does **NOT** verify signature
-
-Testing
+## Testing
 - Test QR.png(s) are from `https://github.com/eu-digital-green-certificates/dgc-testdata`
 - `make test` runs local tests
 
-# Verification
+## Verification
 Verification covers
 1. Verifying the COSE Signature to ensure message integrity and the issuers identity.
 2. Verifying the issuer is a trusted party. 
@@ -162,8 +159,9 @@ Hence, as it is a closed shop it was not possible verify the vaccine credentials
 Resources
 - This was useful in understanding more https://github.com/Digitaler-Impfnachweis/certification-apis/blob/master/dsc-update/README.md
 
+# Reference Documents
 
-# EU Documents and Code
+## EU Documents and Code
 
 1. A good starting place has links to all other technical documents
     - https://ec.europa.eu/health/ehealth/covid-19_en
@@ -181,17 +179,17 @@ Resources
     - Volume 3 - Technical Specifications for Digital Green Certificates (Interoperable 2D Code, CBOR)
         - https://ec.europa.eu/health/sites/default/files/ehealth/docs/digital-green-certificates_v3_en.pdf
     - Volume 4 - European Digital Green Certificate Applications
-          - https://ec.europa.eu/health/sites/default/files/ehealth/docs/digital-green-certificates_v4_en.pdf
+      - https://ec.europa.eu/health/sites/default/files/ehealth/docs/digital-green-certificates_v4_en.pdf
 
-4. EU Support 
+4. EU Support
     - Certificate JSON Schema
         - https://github.com/ehn-dcc-development/ehn-dcc-schema
         - https://ec.europa.eu/health/sites/default/files/ehealth/docs/covid-certificate_json_specification_en.pdf
     - Value Sets for codes etc
         - https://ec.europa.eu/health/sites/default/files/ehealth/docs/digital-green-value-sets_en.pdf
         - https://github.com/ehn-dcc-development/ehn-dcc-schema/tree/release/1.3.0/valuesets
-    
-# CBOR Specifications
+
+## CBOR Specifications
 Used the following CBOR related specifications to unpack the credential
 
 - Concise Binary Object Representation (CBOR)
@@ -203,8 +201,11 @@ Used the following CBOR related specifications to unpack the credential
     - `https://datatracker.ietf.org/doc/html/rfc8392`
 - Decode CBOR tags
     - `https://datatracker.ietf.org/doc/html/draft-bormann-cbor-notable-tags-01`
+
+
+# Appendix CLI Verbose Output
     
-# Example Verbose 1 Output
+## Example Verbose 1 Output
 ```
 go run . -qrfile ./testfiles/dcc-testdata/DE/2DCode/png/1.png -verbose 1
 Decoding EU Covid-19 Certificate
@@ -271,7 +272,7 @@ Vaccine Details
   ID:                 URN:UVCI:01DE/IZ12345A/5CWLU12RNOB9RXSEOP6FG8#W
 ```
 
-# Example Verbose 2 Output
+## Example Verbose 2 Output
 ```
 go run . -qrfile ./testfiles/dcc-testdata/DE/2DCode/png/1.png -verbose 2
 Decoding EU Covid Certificate
