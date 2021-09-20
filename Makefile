@@ -17,3 +17,7 @@ lint:
 	@echo "** Linting **"
 	go install golang.org/x/lint/golint
 	golint -set_exit_status ./...
+
+macbin:
+	@echo "** make mac executable **"
+	go build -o ./bin/decoder.mac

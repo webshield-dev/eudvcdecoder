@@ -62,7 +62,7 @@ func Test_Decode(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 
-			decodeOutput, err := vcDecoder.FromFileQRCodePNG(tc.qrCodePath)
+			decodeOutput, err := vcDecoder.FromFileQRCode(tc.qrCodePath)
 			require.NoError(t, err)
 			require.NotNil(t, decodeOutput)
 			require.True(t, decodeOutput.Decoded, "should have successfully decoded data")

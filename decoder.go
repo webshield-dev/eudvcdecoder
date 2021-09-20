@@ -91,7 +91,7 @@ func main() {
 
 
 
-	decodeOutput, err := dc.FromFileQRCodePNG(cliQRFilename)
+	decodeOutput, err := dc.FromFileQRCode(cliQRFilename)
 	if err != nil {
 		_ = displayResults(vsMapper, decodeOutput, lowVerbose, maxVerbose)
 		fmt.Printf("ERROR processing certficate err=%s\n", err)
@@ -185,7 +185,7 @@ func displayResults(vsMapper *helper.ValueSetMapper, output *helper.Output,
 		//
 		fmt.Printf("Successfully Decoded EU Covid-19 Certificate\n")
 
-		if lowVerbose {
+		if lowVerbose || maxVerbose {
 			fmt.Printf("\n**** EU Covid-19 Certificate Details **** \n")
 
 			//

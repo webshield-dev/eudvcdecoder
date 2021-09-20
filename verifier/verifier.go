@@ -14,9 +14,9 @@ import (
 //
 type Verifier interface {
 
-	//FromFileQRCodePNG verifies a EUDC from its QR code PNG stored in filename
+	//FromFileQRCode verifies a EUDC QR code stored in a .png or .jpg file.
 	//if an error returns what it has processed so far, incase want to display
-	FromFileQRCodePNG(ctx context.Context, filename string, opts *VerifyOptions) (*Output, error)
+	FromFileQRCode(ctx context.Context, filename string, opts *VerifyOptions) (*Output, error)
 
 	//FromQRCodePNGBytes decode starting with a QR code PNG represented as bytes
 	//first makes a local PNG image and the decodes to get the HC1: representation
@@ -69,12 +69,12 @@ type verifierImpl struct {
 	decoder  helper.Decoder
 }
 
-func (v *verifierImpl) FromFileQRCodePNG(ctx context.Context, filename string, opts *VerifyOptions) (*Output, error) {
+func (v *verifierImpl) FromFileQRCode(ctx context.Context, filename string, opts *VerifyOptions) (*Output, error) {
 
 	verifyOutput := &Output{}
 
 	//first decode
-	decodeOutput, err := v.decoder.FromFileQRCodePNG(filename)
+	decodeOutput, err := v.decoder.FromFileQRCode(filename)
 	if err != nil {
 		verifyOutput.DecodeOutput = decodeOutput //some decode stages may have passed
 		return verifyOutput, fmt.Errorf("error decoding the digital credential err=%s", err)

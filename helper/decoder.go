@@ -7,10 +7,12 @@ import (
 	"fmt"
 	"github.com/webshield-dev/eudvcdecoder/datamodel"
 	"image"
+	"image/jpeg"
 	"image/png"
 	"io"
 	"io/ioutil"
 	"os"
+	"strings"
 
 	"github.com/fxamacker/cbor/v2"
 
@@ -43,10 +45,11 @@ func NewDecoder(debug bool, maxDebug bool) Decoder {
 //Decoder methods to decode a EU covid certificate
 type Decoder interface {
 
-	//FromFileQRCodePNG decode starting with a QR code PNG stored in filename
-	//if an error returns what it has processed so far
+	//FromFileQRCode assumes file contains a DGC QR code, reads a decodes. If any errors returns what it has
+	//managed to decode so far. Accepts either .png or .jpg
 	//DOES not verify
-	FromFileQRCodePNG(filename string) (*Output, error)
+	FromFileQRCode(filename string) (*Output, error)
+
 
 	//FromQRCodePNGBytes decode starting with a QR code PNG represented as bytes
 	//first makes a local PNG image and the decodes to get the HC1: representation
@@ -112,17 +115,30 @@ type decoderImpl struct {
 	maxDebug bool
 }
 
-//FromFileQRCodePNG reads file that contains the QR code PNG and decodes to get the output,
-//DOES NOT verify the signature
-func (di *decoderImpl) FromFileQRCodePNG(filename string) (*Output, error) {
 
-	pngBytes, err := ioutil.ReadFile(os.ExpandEnv(filename))
-	if err != nil {
-		return nil, fmt.Errorf("error reading QR code file=%s err=%s", filename, err)
+//FromFileQRCode determines if a PNG or JPG and acts accordingly
+func (di *decoderImpl) FromFileQRCode(filename string) (*Output, error) {
+
+	if strings.HasSuffix(filename, ".png") {
+		pngBytes, err := ioutil.ReadFile(os.ExpandEnv(filename))
+		if err != nil {
+			return nil, fmt.Errorf("error reading QR code file=%s err=%s", filename, err)
+		}
+		return di.FromQRCodePNGBytes(pngBytes)
 	}
 
-	return di.FromQRCodePNGBytes(pngBytes)
+	if strings.HasSuffix(filename, ".jpg") {
+		jpegBytes, err := ioutil.ReadFile(os.ExpandEnv(filename))
+		if err != nil {
+			return nil, fmt.Errorf("error reading QR code file=%s err=%s", filename, err)
+		}
+		return di.FromQRCodeJPGBytes(jpegBytes)
+	}
+
+	return nil, fmt.Errorf("error only supports .png and .jpg formats passed=%s", filename)
+
 }
+
 
 func (di *decoderImpl) FromQRCodePNGBytes(pngB []byte) (*Output, error) {
 
@@ -153,6 +169,40 @@ func (di *decoderImpl) FromQRCodePNGBytes(pngB []byte) (*Output, error) {
 	return di.FromQRCodeContents([]byte(result.String()))
 
 }
+
+
+func (di *decoderImpl) FromQRCodeJPGBytes(pngB []byte) (*Output, error) {
+
+	reader := bytes.NewReader(pngB)
+
+	var img image.Image
+	img, err := jpeg.Decode(reader)
+	if err != nil {
+		return nil, err
+	}
+
+	// prepare BinaryBitmap
+	var bmp *gozxing.BinaryBitmap
+	bmp, err = gozxing.NewBinaryBitmapFromImage(img)
+	if err != nil {
+		return nil, err
+	}
+
+	// decode image
+	var result *gozxing.Result
+	qrReader := qrcode.NewQRCodeReader()
+	result, err = qrReader.Decode(bmp, nil)
+	if err != nil {
+		return nil, err
+	}
+
+
+	return di.FromQRCodeContents([]byte(result.String()))
+
+}
+
+
+
 
 //IsDGCFromQRCodeContents returns true if the card is a digital green card, does no processing
 //looks for HC1 code
