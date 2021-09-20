@@ -76,17 +76,6 @@ Vaccine Details
   ID:                 URN:UVCI:01DE/IZ12345A/5CWLU12RNOB9RXSEOP6FG8#W
 ```
 
-**Table of Contents**
-
-* [Setup](#setup)
-* [Usage](#usage)
-* [Decoding Steps](#decoding-steps)
-* [EU Documents and Code](#eu-documents-and-code)
-* [CBOR Specifications](#cbor-specifications)
-* [Example Verbose 1 Output](#example-verbose-1-output)
-* [Example Verbose 2 Output](#example-verbose-2-output)
-* [Development](#development)
-
 ## Setup
 1. Git Clone/Fork this repo
 2. The repo includes a **macOS binary** and a **linux binary**, otherwise you need to install Go.
