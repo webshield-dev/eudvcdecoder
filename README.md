@@ -1,6 +1,34 @@
 # Overview
-This CLI tool decodes an EU Digital COVID-19 Certificate (also referred to as Digital Green Certificates) QRCode.png, it does NOT
-yet verify the Signature. Example Certificate Information
+
+## Decode using the SafetyPASS webpage
+The [web page](https://safetypass.sandbox.webshield.io/shc/web/v1/public/smart-health-card/upload) decodes an EU Digital 
+COVID-19 Certificate (also referred to as Digital Green Certificates) and displays it contents.
+
+The credential can be provided as follows
+- By scanning the QR code
+- By upload a png or jpg of the QR code
+- By pasting the QR code content - begins with HC1:
+
+SafetyPASS does NOT
+- save the data
+- verify the card signature - future
+
+Once verified it displays
+- An overview of the vaccination information
+- the show details section shows
+    - A detailed view of the payload
+    - the QR content
+    - the CBOR UnMarshalled CWT
+    - the CBOR UnMarshalled CWT Payload
+    - the COSE Single signature
+    - the CBOR unmarshalled protected header 
+    
+The page can also decode
+- VCI compliant vaccine credentials.
+
+## Decode using the CLI tool
+The CLI tool decodes an EU Digital COVID-19 Certificate (also referred to as Digital Green Certificates) QRCode.(png|jpg).
+It does NOT yet verify the Signature. Example Certificate Information
 
 ```
 ... run details removed for clarity ...
