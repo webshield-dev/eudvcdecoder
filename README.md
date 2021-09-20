@@ -1,8 +1,13 @@
 # Overview
+An EU Digital COVID-19 Certificate (also referred to as Digital Green Certificates) can be decoded by
+* [Upload to a web page](#decode-using-the-SafetyPASS-verify-web-page)
+* [Using a CLI tool on local machine](#decode-using-the-CLI-tool)
 
-## Decode using the SafetyPASS webpage
+## Decode using the SafetyPASS web page
 The [web page](https://safetypass.sandbox.webshield.io/shc/web/v1/public/smart-health-card/upload) decodes an EU Digital 
-COVID-19 Certificate (also referred to as Digital Green Certificates) and displays it contents.
+COVID-19 Certificate and displays it contents.
+
+![overview page](https://raw.githubusercontent.com/webshield-dev/eudvcdecoder/main/images/display-dgc-page.png)
 
 The credential can be provided as follows
 - By scanning the QR code
@@ -26,8 +31,16 @@ Once verified it displays
 The page can also decode
 - VCI compliant vaccine credentials.
 
+The details page
+![details page](https://raw.githubusercontent.com/webshield-dev/eudvcdecoder/main/images/details-1.png)
+![details page](https://raw.githubusercontent.com/webshield-dev/eudvcdecoder/main/images/details-2.png)
+
+The upload page
+![upload page](https://raw.githubusercontent.com/webshield-dev/eudvcdecoder/main/images/landing-page.png)
+
+
 ## Decode using the CLI tool
-The CLI tool decodes an EU Digital COVID-19 Certificate (also referred to as Digital Green Certificates) QRCode.(png|jpg).
+The CLI tool decodes an EU Digital COVID-19 Certificate QRCode from a file.(png|jpg)
 It does NOT yet verify the Signature. Example Certificate Information
 
 ```
