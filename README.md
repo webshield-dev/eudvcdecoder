@@ -1,10 +1,11 @@
 # Overview
-An EU Digital COVID-19 Certificate (also referred to as Digital Green Certificates) can be decoded by
-* [Decode using a web page](#decode-using-the-Safetypass-verify-web-page)
-* [Decode using a CLI tool on local machine](#decode-using-the-CLI-tool)
-* [Reference Documents](#reference-documents)
+This repo provides tools to decode an EU Digital COVID-19 Certificate (also referred to as Digital Green Certificates)
+* [Decode using a public web page](#decode-using-the-Safetypass-verify-web-page)
+* [Decode using a CLI tool on your local machine](#decode-using-the-CLI-tool)
+* [EU DHC and CBOR Reference Documents](#reference-documents)
 * [Appendix CLI Verbose Output](#appendix-CLI-verbose-output)
 
+## Decoding Steps
 The **decoding steps** are as follows:
 1. Read the QR code to get the QR alphanumeric code. This is prefixed with "HC1:6BF...."
 2. Base45 decode the part after "HC1:" to get the ZLIB compressed certificate
@@ -22,39 +23,17 @@ The **decoding steps** are as follows:
 
 ## Decode using the SafetyPASS verify web page
 The [web page](https://safetypass.sandbox.webshield.io/shc/web/v1/public/smart-health-card/upload) decodes an EU Digital 
-COVID-19 Certificate and displays it contents.
+COVID-19 Certificate and displays it contents. It **does not** save the data, or verify the signature (future)
 
+The overview page
 ![overview page](https://raw.githubusercontent.com/webshield-dev/eudvcdecoder/main/images/display-dgc-page.png)
 
-The credential can be provided as follows
-- By scanning the QR code
-- By upload a png or jpg of the QR code
-- By pasting the QR code content - begins with HC1:
-
-SafetyPASS does NOT
-- save the data
-- verify the card signature - future
-
-Once verified it displays
-- An overview of the vaccination information
-- the show details section shows
-    - A detailed view of the payload
-    - the QR content
-    - the CBOR UnMarshalled CWT
-    - the CBOR UnMarshalled CWT Payload
-    - the COSE Single signature
-    - the CBOR unmarshalled protected header 
-    
-The page can also decode
-- VCI compliant vaccine credentials.
-
-The details page
+The show details section
 ![details page](https://raw.githubusercontent.com/webshield-dev/eudvcdecoder/main/images/details-1.png)
 ![details page](https://raw.githubusercontent.com/webshield-dev/eudvcdecoder/main/images/details-2.png)
 
-The upload page
+The credential can be provided as follows
 ![upload page](https://raw.githubusercontent.com/webshield-dev/eudvcdecoder/main/images/landing-page.png)
-
 
 ## Decode using the CLI tool
 The CLI tool decodes an EU Digital COVID-19 Certificate QRCode from a file.(png|jpg)
