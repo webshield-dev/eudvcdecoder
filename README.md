@@ -21,6 +21,8 @@ The **decoding steps** are as follows:
 6. CBOR decode the payload to get the issuer, iat, exp, subject information, and vaccination information
 7. NOT yet implemented check the COSE signature by getting signing key from issuing State and using it to check the CBOR signature.
 
+![layering](https://raw.githubusercontent.com/webshield-dev/eudvcdecoder/main/images/eu-dgc-layers.png)
+
 ## Decode using the SafetyPASS verify web page
 This [web page](https://safetypass.sandbox.webshield.io/shc/web/v1/public/smart-health-card/upload) decodes an EU Digital 
 COVID-19 Certificate and displays it contents. It **does not** save the data, or verify the signature (future)
