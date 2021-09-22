@@ -1,18 +1,19 @@
 # Overview
 This repo provides tools to decode an EU Digital COVID-19 Certificate (also referred to as Digital Green Certificates)
+* [Decoding steps](#decoding-steps)
 * [Decode using a public web page](#decode-using-the-Safetypass-verify-web-page)
 * [Decode using a CLI tool on your local machine](#decode-using-the-CLI-tool)
 * [EU DGC and CBOR Reference Documents](#reference-documents)
 * [Appendix CLI Verbose Output](#appendix-CLI-verbose-output)
 
 ## Decoding Steps
-The **decoding steps** are as follows:
-1. Read the QR code to get the QR alphanumeric code. This is prefixed with "HC1:6BF...."
-2. Base45 decode the part after "HC1:" to get the ZLIB compressed certificate
-3. ZLIB inflate the compressed certificate to get a COSE tagged message (CBOR Object Signing and Encryption (COSE))
+The steps to decode an EU DGC are as follows:
+1. Decode the QR image to get the QR alphanumeric code. This is prefixed with "HC1:6BF...."
+2. Base45 decode the part after "HC1:" to get the ZLIB compressed content
+3. ZLIB inflate the compressed content to get a CBOR Object Signing and Encryption (COSE) tagged message
 4. CBOR decode the COSE tagged message that contains
     - a Number key with value of 18 indicating that a "Cose_Sign1" object
-    - a Content key with an array of containing the CBOR Web Token parts
+    - a Content key with an array of containing the CBOR Web Token (CWT)
         - protected header - cbor encoded []byte
         - unprotected header - map
         - payload  - cbor encoded []byte
@@ -163,14 +164,18 @@ Resources
 Used the following CBOR related specifications to unpack the credential
 
 - Concise Binary Object Representation (CBOR)
-    - `https://datatracker.ietf.org/doc/html/rfc7049`
+    - https://datatracker.ietf.org/doc/html/rfc7049
 - CBOR Object Signing and Encryption (COSE)
-    - `https://datatracker.ietf.org/doc/html/rfc8152`
+    - https://datatracker.ietf.org/doc/html/rfc8152
     - certificate uses COSE Single Signer (COSE_Sign1), which has a CBOR tag of 18
 - CBOR Web Token (CWT)
-    - `https://datatracker.ietf.org/doc/html/rfc8392`
+    - https://datatracker.ietf.org/doc/html/rfc8392
 - Decode CBOR tags
-    - `https://datatracker.ietf.org/doc/html/draft-bormann-cbor-notable-tags-01`
+    - https://datatracker.ietf.org/doc/html/draft-bormann-cbor-notable-tags-01
+    
+## Other Specifications
+- Base 45 Encoding
+    - `https://datatracker.ietf.org/doc/draft-faltstrom-base45`
 
 
 # Appendix CLI Verbose Output
