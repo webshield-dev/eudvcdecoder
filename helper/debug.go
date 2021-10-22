@@ -12,7 +12,7 @@ func DebugCBORCommonPayload(payload []byte) []string {
 
 	rl := make([]string, 0)
 
-	rl = append(rl, fmt.Sprintf("ERROR cbor unmarshalling CommonPayload HCERT diagnosing"))
+	rl = append(rl, "ERROR cbor unmarshalling CommonPayload HCERT diagnosing")
 
 	//if an error using the known types then use an interface for HCERT so can process in debug
 	type resilientCommonPayloadCBORMapping struct {
@@ -33,16 +33,14 @@ func DebugCBORCommonPayload(payload []byte) []string {
 		{
 			hcertM := cp.HCERT.(map[interface{}]interface{})
 			for k, v := range hcertM {
-				switch k.(type) {
+				switch kt := k.(type) {
 				case uint64:
 					{
-						ki := k.(uint64)
+						ki := kt
 						if ki == 1 {
 							//can process
 							arls := AnalyseMap(v, "  ")
-							for _, arl := range arls {
-								rl = append(rl, arl)
-							}
+							rl = append(rl, arls...)
 
 						} else {
 							rl = append(rl, fmt.Sprintf("ERROR HCERT.map[key] expected=1 got=%d", ki))
@@ -87,22 +85,18 @@ func AnalyseMap(mapI interface{}, indent string) []string {
 			for k1, v1 := range m1 {
 				rl = append(rl, fmt.Sprintf("%skey=%v %T v=%v %T", indent, k1, k1, v1, v1))
 
-				switch v1.(type) {
+				switch v1t := v1.(type) {
 				case map[interface{}]interface{}, map[string]interface{}:
 					{
 						newrls := AnalyseMap(v1, indent+"  ")
-						for _, newrll := range newrls {
-							rl = append(rl, newrll)
-						}
+						rl = append(rl, newrls...)
 					}
 				case []interface{}:
 					{
-						a := v1.([]interface{})
+						a := v1t
 						for _, entry := range a {
 							newrls := AnalyseMap(entry, indent+"  ")
-							for _, newrll := range newrls {
-								rl = append(rl, newrll)
-							}
+							rl = append(rl, newrls...)
 						}
 
 					}
