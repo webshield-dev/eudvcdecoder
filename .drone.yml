@@ -17,7 +17,7 @@ workspace:
   path: src/github.com/webshield-dev/${DRONE_REPO_NAME}
 
 steps:
-  - name: test
+  - name: drone-test
     image: golang:1.17
     pull: default
     environment:
