@@ -3,6 +3,7 @@ package verifier
 import (
 	"context"
 	"fmt"
+	"github.com/webshield-dev/dhc-common/verification"
 	eudvcdatamodel "github.com/webshield-dev/eudvcdecoder/datamodel"
 	"github.com/webshield-dev/eudvcdecoder/helper"
 )
@@ -36,8 +37,8 @@ type Output struct {
 	//DecodeOutput the output from decoding
 	DecodeOutput *helper.Output
 
-	//VerifiedSignature true if the signature has been verified
-	VerifiedSignature bool
+	//Results captures all the verifications that occurred
+	Results *verification.CardVerificationResults
 }
 
 //DCC return the (Digital Covid Certificate) inside the record, if none returns nil
@@ -131,9 +132,10 @@ func (v *verifierImpl) FromQRCodeContents(ctx context.Context, qrCodeContents []
 
 func (v *verifierImpl) verify(verifyOutput *Output) {
 
-	//
-	// fixme add code to verify the signature
-	//
-	verifyOutput.VerifiedSignature = false
+
+	//fixme add verifications for now just decoding
+	vp := verification.NewProcessor()
+
+	verifyOutput.Results = vp.GetResults()
 
 }
