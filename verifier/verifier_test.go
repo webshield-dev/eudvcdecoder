@@ -3,6 +3,7 @@ package verifier_test
 import (
 	"context"
 	"github.com/stretchr/testify/require"
+	"github.com/webshield-dev/dhc-common/verification"
 	"github.com/webshield-dev/eudvcdecoder/verifier"
 	"io/ioutil"
 	"testing"
@@ -13,8 +14,8 @@ func Test_Verifier(t *testing.T) {
 
 	type testCase struct {
 		name string
-
 		qrCodePath string
+		expectedCardState verification.CardVerificationState
 	}
 
 	//
@@ -24,26 +25,32 @@ func Test_Verifier(t *testing.T) {
 		{
 			name:       "should decode a WebShield generated file",
 			qrCodePath: "../testfiles/vaccine/ws_generate_qrcode.png",
+			expectedCardState: verification.CardVerificationStateInvalid,
 		},
 		{
 			name:       "should support ireland vaccine qr code",
 			qrCodePath: "../testfiles/dcc-testdata/IE/png/1_qr.png",
+			expectedCardState: verification.CardVerificationStateInvalid,
 		},
 		{
 			name:       "should support greece test qr code png",
 			qrCodePath: "../testfiles/dcc-testdata/GR/2DCode/png/3.png",
+			expectedCardState: verification.CardVerificationStateInvalid,
 		},
 		{
 			name:       "should support NL vaccine qr code png",
 			qrCodePath: "../testfiles/dcc-testdata/NL/png/072-NL-vaccination.png",
+			expectedCardState: verification.CardVerificationStateInvalid,
 		},
 		{
 			name:       "should support German Vaccine qr code png",
 			qrCodePath: "../testfiles/dcc-testdata/DE/2DCode/png/1.png",
+			expectedCardState: verification.CardVerificationStateInvalid,
 		},
 		{
 			name:       "should support austria vaccine qr code png",
 			qrCodePath: "../testfiles/dcc-testdata/AT/png/1.png",
+			expectedCardState: verification.CardVerificationStateInvalid,
 		},
 	}
 
@@ -65,6 +72,9 @@ func Test_Verifier(t *testing.T) {
 			verifierOutput, err = dgVerifier.FromQRCodePNGBytes(ctx, pngB, nil)
 			require.NoError(t, err)
 			require.NotNil(t, verifierOutput)
+
+			require.Equal(t, tc.expectedCardState, verifierOutput.Results.State)
+
 		})
 	}
 }

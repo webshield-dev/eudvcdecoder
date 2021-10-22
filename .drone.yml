@@ -28,4 +28,4 @@ steps:
         from_secret: GITHUB_ACCESS_TOKEN
     commands:
       - echo "machine github.com login webshield password $GITHUB_ACCESS_TOKEN" >> $HOME/.netrc
-      - make test
+      - make drone-test
