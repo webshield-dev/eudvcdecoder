@@ -3,11 +3,8 @@ REPO_NAME   := eudvcdecoder
 install-code-check:
 	@echo "** install 3rd party static code checkers **"
 
-	# scan code staticcheck.io using standard config - find lint and additional issues
 	go install honnef.co/go/tools/cmd/staticcheck@latest
 
-	#scan code for security issues
-	# old pre go 1.16 command go get -u github.com/securego/gosec/v2/cmd/gosec
 	go install github.com/securego/gosec/v2/cmd/gosec@latest
 
 code-check:

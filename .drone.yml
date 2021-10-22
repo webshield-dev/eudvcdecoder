@@ -17,7 +17,7 @@ workspace:
   path: src/github.com/webshield-dev/${DRONE_REPO_NAME}
 
 steps:
-  - name: drone-test
+  - name: test
     image: golang:1.17
     pull: default
     environment:
@@ -28,4 +28,4 @@ steps:
         from_secret: GITHUB_ACCESS_TOKEN
     commands:
       - echo "machine github.com login webshield password $GITHUB_ACCESS_TOKEN" >> $HOME/.netrc
-      - make test
+      - make drone-test
