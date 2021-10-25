@@ -21,6 +21,8 @@ github.com/stretchr/testify v1.7.0 h1:nwc3DEeHmmLAfoZucVR881uASk0Mfjw8xYJ99tb5Cc
 github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
 github.com/webshield-dev/dhc-common v0.0.0-20211022203140-948c3c063d0c h1:sSp7/qQvQAXrfxw2V/ccBcQANWcsYoKi/SGCHZasHvg=
 github.com/webshield-dev/dhc-common v0.0.0-20211022203140-948c3c063d0c/go.mod h1:FQPctcraoAhAz/nDawxKrWXuEvyCy/U4XrNSmRDlRU4=
+github.com/webshield-dev/dhc-common v0.0.0-20211025005013-513cfdd22bea h1:gYNcfG/VSr/o0V8KphkLOC5R0KdwgCJsYnk59iIFxc4=
+github.com/webshield-dev/dhc-common v0.0.0-20211025005013-513cfdd22bea/go.mod h1:FQPctcraoAhAz/nDawxKrWXuEvyCy/U4XrNSmRDlRU4=
 github.com/x448/float16 v0.8.4 h1:qLwI1I70+NjRFUR3zs1JPUCgaCXSh3SW62uAKT1mSBM=
 github.com/x448/float16 v0.8.4/go.mod h1:14CWIYCyZA/cWjXOioeEpHeN/83MdbZDRQHoFcYsOfg=
 golang.org/x/text v0.3.5 h1:i6eZZ+zk0SOf0xgBpEpPD18qWcJda6q1sxt3S0kzyUQ=
