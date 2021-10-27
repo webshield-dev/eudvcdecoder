@@ -136,6 +136,6 @@ func (v *verifierImpl) verify(verifyOutput *Output) {
 	//fixme add verifications for now just decoding
 	vp := verification.NewProcessor()
 
-	verifyOutput.Results = vp.GetResults()
+	verifyOutput.Results = vp.GetVerificationResults()
 
 }
