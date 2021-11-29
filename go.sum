@@ -25,6 +25,8 @@ github.com/webshield-dev/dhc-common v0.0.0-20211025005013-513cfdd22bea h1:gYNcfG
 github.com/webshield-dev/dhc-common v0.0.0-20211025005013-513cfdd22bea/go.mod h1:FQPctcraoAhAz/nDawxKrWXuEvyCy/U4XrNSmRDlRU4=
 github.com/webshield-dev/dhc-common v0.0.0-20211027163602-040be8835dc3 h1:rkHI1g9lWI3QSt4YeNUtxi31s9/sn4oolnHA7bqPoXo=
 github.com/webshield-dev/dhc-common v0.0.0-20211027163602-040be8835dc3/go.mod h1:FQPctcraoAhAz/nDawxKrWXuEvyCy/U4XrNSmRDlRU4=
+github.com/webshield-dev/dhc-common v0.0.0-20211129004726-336f3870c2c5 h1:Kb5kRO5Uzka8q7U4AljBR01LbHRTav6o7sP9PWY3Q3c=
+github.com/webshield-dev/dhc-common v0.0.0-20211129004726-336f3870c2c5/go.mod h1:FQPctcraoAhAz/nDawxKrWXuEvyCy/U4XrNSmRDlRU4=
 github.com/x448/float16 v0.8.4 h1:qLwI1I70+NjRFUR3zs1JPUCgaCXSh3SW62uAKT1mSBM=
 github.com/x448/float16 v0.8.4/go.mod h1:14CWIYCyZA/cWjXOioeEpHeN/83MdbZDRQHoFcYsOfg=
 golang.org/x/text v0.3.5 h1:i6eZZ+zk0SOf0xgBpEpPD18qWcJda6q1sxt3S0kzyUQ=

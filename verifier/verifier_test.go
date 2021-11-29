@@ -25,32 +25,32 @@ func Test_Verifier(t *testing.T) {
 		{
 			name:       "should decode a WebShield generated file",
 			qrCodePath: "../testfiles/vaccine/ws_generate_qrcode.png",
-			expectedCardState: verification.CardVerificationStatePartlyVerified,
+			expectedCardState: verification.CardVerificationStateUnVerified,
 		},
 		{
 			name:       "should support ireland vaccine qr code",
 			qrCodePath: "../testfiles/dcc-testdata/IE/png/1_qr.png",
-			expectedCardState: verification.CardVerificationStatePartlyVerified,
+			expectedCardState: verification.CardVerificationStateUnVerified,
 		},
 		{
 			name:       "should support greece test qr code png",
 			qrCodePath: "../testfiles/dcc-testdata/GR/2DCode/png/3.png",
-			expectedCardState: verification.CardVerificationStatePartlyVerified,
+			expectedCardState: verification.CardVerificationStateUnVerified,
 		},
 		{
 			name:       "should support NL vaccine qr code png",
 			qrCodePath: "../testfiles/dcc-testdata/NL/png/072-NL-vaccination.png",
-			expectedCardState: verification.CardVerificationStatePartlyVerified,
+			expectedCardState: verification.CardVerificationStateUnVerified,
 		},
 		{
 			name:       "should support German Vaccine qr code png",
 			qrCodePath: "../testfiles/dcc-testdata/DE/2DCode/png/1.png",
-			expectedCardState: verification.CardVerificationStatePartlyVerified,
+			expectedCardState: verification.CardVerificationStateUnVerified,
 		},
 		{
 			name:       "should support austria vaccine qr code png",
 			qrCodePath: "../testfiles/dcc-testdata/AT/png/1.png",
-			expectedCardState: verification.CardVerificationStatePartlyVerified,
+			expectedCardState: verification.CardVerificationStateUnVerified,
 		},
 	}
 
