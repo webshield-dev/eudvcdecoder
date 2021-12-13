@@ -3,6 +3,8 @@ package verifier
 import (
 	"context"
 	"fmt"
+	dhcPdm "github.com/webshield-dev/dhc-common/pdm"
+	"github.com/webshield-dev/dhc-common/vaccinemd"
 	"github.com/webshield-dev/dhc-common/verification"
 	eudvcdatamodel "github.com/webshield-dev/eudvcdecoder/datamodel"
 	"github.com/webshield-dev/eudvcdecoder/helper"
@@ -52,8 +54,12 @@ func (o *Output) DCC() *eudvcdatamodel.DCC {
 
 //VerifyOptions options to verify
 type VerifyOptions struct {
-	//UnSafe if set does not verify the signature
+	//UnSafe if set does not verify the signature, somehow the client knows valid.
 	UnSafe bool
+
+	//FakeVerificationResultValid if passed in the card verification results will be fake values
+	//required for some strange demo situation, do not reuce
+	FakeVerificationResultValid bool
 }
 
 //NewVerifier make a verifier
@@ -87,7 +93,10 @@ func (v *verifierImpl) FromFileQRCode(ctx context.Context, filename string, opts
 	}
 
 	//verify signature
-	v.verify(verifyOutput)
+	if err = v.verify(verifyOutput, opts); err != nil {
+		return verifyOutput, fmt.Errorf("error verifying the digital credential err=%s", err)
+
+	}
 
 	return verifyOutput, nil
 }
@@ -104,7 +113,9 @@ func (v *verifierImpl) FromQRCodePNGBytes(ctx context.Context, pngB []byte, opts
 	}
 	verifyOutput.DecodeOutput = decodeOutput
 
-	v.verify(verifyOutput)
+	if err = v.verify(verifyOutput, opts); err != nil {
+		return verifyOutput, fmt.Errorf("error verifying the digital credential err=%s", err)
+	}
 
 	return verifyOutput, nil
 }
@@ -125,17 +136,58 @@ func (v *verifierImpl) FromQRCodeContents(ctx context.Context, qrCodeContents []
 	}
 	verifyOutput.DecodeOutput = decodeOutput
 
-	v.verify(verifyOutput)
+	if err = v.verify(verifyOutput, opts); err != nil {
+		return verifyOutput, fmt.Errorf("error verifying the digital credential err=%s", err)
+	}
 
 	return verifyOutput, nil
 }
 
-func (v *verifierImpl) verify(verifyOutput *Output) {
+func (v *verifierImpl) verify(verifyOutput *Output, opts *VerifyOptions) error {
 
+	//
+	// Fixme no verifications are currently performed so this state will always been unknown.
+	// for product demos (as still in dev) to prospects want to show a valid so allow client
+	// to override to fake verification results
 
-	//fixme add verifications for now just decoding
 	vp := verification.NewProcessor()
 
-	verifyOutput.Results = vp.GetVerificationResults()
+	results := vp.GetVerificationResults()
 
+	if opts != nil && opts.FakeVerificationResultValid && results.State != verification.CardVerificationStateValid {
+		//fixme comeback and revist, see issue, for now added as upper layers needed to demo code
+		//to prospect and need to be able to show as valid for now.
+		vp.SetFetchedKey()
+		vp.SetSignatureChecked()
+		vp.SetSignatureValid()
+		vp.SetIssuerTrusted()
+
+		//fake immunization, so does not matter what use
+		doses := []*dhcPdm.Dose{
+			{
+				Coding: vaccinemd.Coding{
+					System: vaccinemd.CVXSystem,
+					Code:   "207", //moderna
+				},
+
+				OccurrenceDateTime: "2021-03-16",
+			},
+			{
+				Coding: vaccinemd.Coding{
+					System: vaccinemd.CVXSystem,
+					Code:   "207", //moderna
+				},
+
+				OccurrenceDateTime: "2021-04-06",
+			},
+		}
+
+		_, _ = vp.VerifyImmunization(vaccinemd.RegionUSA, doses)
+
+		results = vp.GetVerificationResults()
+
+	}
+
+	verifyOutput.Results = results
+	return nil
 }

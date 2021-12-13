@@ -16,8 +16,8 @@ code-check:
 	#scan code with vet finds more issues than compiler
 	go vet ./...
 
-	#scan code for security issues
-	gosec -quiet -fmt=json ./...
+	#scan code for security issues, only interested in medium of higher
+	gosec -quiet -fmt=json -confidence=medium -tests=true ./...
 
 
 drone-test:
@@ -38,3 +38,7 @@ test:
 macbin:
 	@echo "** make mac executable **"
 	go build -o ./bin/decoder.mac
+
+modupdate:
+	go get -d github.com/webshield-dev/dhc-common
+	go mod tidy
