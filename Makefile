@@ -38,3 +38,7 @@ test:
 macbin:
 	@echo "** make mac executable **"
 	go build -o ./bin/decoder.mac
+
+modupdate:
+	go get -d github.com/webshield-dev/dhc-common
+	go mod tidy

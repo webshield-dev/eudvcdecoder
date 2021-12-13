@@ -7,7 +7,7 @@ require (
 	github.com/fxamacker/cbor/v2 v2.3.0
 	github.com/makiuchi-d/gozxing v0.0.2
 	github.com/stretchr/testify v1.7.0
-	github.com/webshield-dev/dhc-common v0.0.0-20211129004726-336f3870c2c5
+	github.com/webshield-dev/dhc-common v0.0.0-20211213195516-b1e7b1196c96
 )
 
 require (
